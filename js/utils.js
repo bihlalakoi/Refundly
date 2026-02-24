@@ -246,3 +246,24 @@ function formatDate(date, format = 'short') {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { LoadingOverlay, Toast, FormValidator, smoothScroll, debounce, formatCurrency, formatDate };
 }
+
+// Replace old icon-based brand marks with the uploaded round logo.
+document.addEventListener('DOMContentLoaded', () => {
+    const legacyBrandIcons = document.querySelectorAll('i.fa-undo');
+    legacyBrandIcons.forEach((icon) => {
+        const wrapper = icon.parentElement;
+        if (!wrapper || wrapper.dataset.logoReplaced === 'true') return;
+
+        wrapper.dataset.logoReplaced = 'true';
+        wrapper.style.background = 'transparent';
+        wrapper.style.overflow = 'hidden';
+        wrapper.style.borderRadius = '50%';
+        wrapper.style.padding = '0';
+        wrapper.style.color = 'transparent';
+
+        const width = wrapper.style.width || '32px';
+        const height = wrapper.style.height || '32px';
+
+        wrapper.innerHTML = `<img src="/assets/logo-round.jpg" alt="Refundly logo" style="width:${width};height:${height};border-radius:50%;object-fit:cover;display:block;">`;
+    });
+});

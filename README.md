@@ -154,6 +154,28 @@ npm start
 
 ## 🎨 **Design Features (Improved)**
 
+### Required Node Environment Variables
+
+For the Node.js app (including Supabase auth + email verification), set:
+
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_SSL_REJECT_UNAUTHORIZED`
+- `SESSION_SECRET`
+- `APP_BASE_URL` (for email verification redirects, e.g. `https://www.refundlypay.com`)
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+
+### Auth Notes
+
+- User sign-up and login are handled by Supabase Auth.
+- Email verification is required before login.
+- Verification redirect page: `verify-email.html`.
+- Supabase security hardening SQL: `supabase_rls_hardening.sql` (run in SQL Editor).
+
 **✅ Professional UI/UX:**
 - **Modern Design**: Clean, professional layout inspired by top SaaS companies
 - **Consistent Branding**: Your color scheme (#0D0A0B, #454955, #F3EFF5, #72B01D, #3F7D20) throughout

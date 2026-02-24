@@ -193,6 +193,11 @@
                 const result = await response.json();
 
                 if (result.success) {
+                    if (result.requiresVerification) {
+                        const emailParam = encodeURIComponent(result.email || data.email || '');
+                        window.location.href = `/verify-email-sent.html?email=${emailParam}`;
+                        return;
+                    }
                     window.location.href = '/dashboard.html';
                 } else {
                     Toast.error(result.message);

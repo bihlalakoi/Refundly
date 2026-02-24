@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - ReFundly</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body style="background: var(--color-slate-50); min-height: 100vh; display: grid; place-items: center; padding: 24px;">
+    <div class="card" style="max-width: 560px; width: 100%; text-align: center;">
+        <div id="iconWrap"
+            style="width: 64px; height: 64px; border-radius: 50%; background: #e2e8f0; color: #475569; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+            <i id="statusIcon" class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+        </div>
+
+        <h1 id="titleText" style="margin-bottom: 12px;">Verifying your email...</h1>
+        <p id="messageText" style="color: var(--color-slate-600); margin-bottom: 20px;">
+            Please wait while we confirm your account.
+        </p>
+
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a id="primaryAction" href="/login.html" class="btn btn-primary" style="display: none;">Go to Login</a>
+            <a href="/" class="btn btn-secondary">Back Home</a>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        const queryParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const tokenHash = queryParams.get('token_hash') || hashParams.get('token_hash');
+        const verifyType = queryParams.get('type') || hashParams.get('type') || 'signup';
+
+        const titleText = document.getElementById('titleText');
+        const messageText = document.getElementById('messageText');
+        const statusIcon = document.getElementById('statusIcon');
+        const iconWrap = document.getElementById('iconWrap');
+        const primaryAction = document.getElementById('primaryAction');
+
+        function setState({ title, message, success }) {
+            titleText.textContent = title;
+            messageText.textContent = message;
+
+            if (success) {
+                statusIcon.className = 'fas fa-check';
+                iconWrap.style.background = '#ecfdf5';
+                iconWrap.style.color = '#16a34a';
+                primaryAction.style.display = 'inline-flex';
+                primaryAction.href = '/dashboard.html';
+                primaryAction.textContent = 'Continue to Dashboard';
+            } else {
+                statusIcon.className = 'fas fa-times';
+                iconWrap.style.background = '#fef2f2';
+                iconWrap.style.color = '#dc2626';
+                primaryAction.style.display = 'inline-flex';
+                primaryAction.href = '/verify-email-sent.html';
+                primaryAction.textContent = 'Resend Verification';
+            }
+        }
+
+        (async () => {
+            if (!tokenHash) {
+                setState({
+                    title: 'Invalid verification link',
+                    message: 'This verification link is missing a token.',
+                    success: false
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/verify-email?token_hash=${encodeURIComponent(tokenHash)}&type=${encodeURIComponent(verifyType)}`);
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    setState({
+                        title: 'Email verified successfully',
+                        message: 'Your account is now active.',
+                        success: true
+                    });
+                    return;
+                }
+
+                setState({
+                    title: 'Verification failed',
+                    message: result.message || 'This verification link is invalid or expired.',
+                    success: false
+                });
+            } catch (error) {
+                setState({
+                    title: 'Verification failed',
+                    message: 'Unable to verify email right now. Please try again later.',
+                    success: false
+                });
+            }
+        })();
+    </script>
+</body>
+
+</html>

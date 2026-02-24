@@ -2,9 +2,11 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
+const crypto = require('crypto');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
+const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 
@@ -12,6 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 const isVercel = Boolean(process.env.VERCEL);
+let authSchemaInitialized = false;
 
 function getRequiredEnv(name) {
   const value = process.env[name];
@@ -24,6 +27,39 @@ function getRequiredEnv(name) {
 function normalizeBcryptHash(hash = '') {
   // Node bcrypt doesn't support $2y$ prefix directly, convert to $2b$.
   return hash.startsWith('$2y$') ? `$2b$${hash.slice(4)}` : hash;
+}
+
+function getAppBaseUrl(req) {
+  if (process.env.APP_BASE_URL) {
+    return process.env.APP_BASE_URL.replace(/\/$/, '');
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  if (req) {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+    return `${protocol}://${req.get('host')}`;
+  }
+
+  return `http://localhost:${PORT}`;
+}
+
+async function ensureAuthSchema() {
+  if (authSchemaInitialized) return;
+
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT FALSE
+  `);
+
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS supabase_user_id UUID
+  `);
+
+  authSchemaInitialized = true;
 }
 
 async function verifyPassword(plainTextPassword, storedPassword) {
@@ -47,6 +83,51 @@ const pool = new Pool({
     rejectUnauthorized: (process.env.DB_SSL_REJECT_UNAUTHORIZED || 'false') === 'true'
   }
 });
+
+const hasSupabaseAuthConfig = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
+const supabaseAuthClient = hasSupabaseAuthConfig
+  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false }
+  })
+  : null;
+
+function getSupabaseAuthClient() {
+  if (!supabaseAuthClient) {
+    throw new Error('Supabase auth is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY.');
+  }
+  return supabaseAuthClient;
+}
+
+async function upsertLocalUserFromSupabase(supabaseUser, fallbackName = null, fallbackPhone = null) {
+  const email = supabaseUser.email;
+  const supabaseUserId = supabaseUser.id;
+  const metadata = supabaseUser.user_metadata || {};
+  const name = fallbackName || metadata.full_name || email.split('@')[0];
+  const phone = fallbackPhone || metadata.phone || null;
+  const verified = Boolean(supabaseUser.email_confirmed_at);
+
+  const existing = await pool.query(
+    'SELECT id, name FROM users WHERE supabase_user_id = $1 OR email = $2 LIMIT 1',
+    [supabaseUserId, email]
+  );
+
+  if (existing.rows.length > 0) {
+    const current = existing.rows[0];
+    await pool.query(
+      'UPDATE users SET supabase_user_id = $1, email = $2, name = COALESCE($3, name), phone = COALESCE($4, phone), email_verified = $5 WHERE id = $6',
+      [supabaseUserId, email, name, phone, verified, current.id]
+    );
+    return { id: current.id, name: name || current.name };
+  }
+
+  const placeholderPassword = await bcrypt.hash(crypto.randomUUID(), 10);
+  const insert = await pool.query(
+    'INSERT INTO users (name, email, password, phone, email_verified, supabase_user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name',
+    [name, email, placeholderPassword, phone, verified, supabaseUserId]
+  );
+
+  return insert.rows[0];
+}
 
 // Middleware
 if (isProduction) {
@@ -98,6 +179,14 @@ app.get('/demo', (req, res) => {
 // User registration
 app.post('/api/register', async (req, res) => {
   try {
+    if (!hasSupabaseAuthConfig) {
+      return res.status(500).json({
+        success: false,
+        message: 'Authentication service is not configured. Missing SUPABASE_URL or SUPABASE_ANON_KEY.'
+      });
+    }
+
+    await ensureAuthSchema();
     const { name, email, password, phone } = req.body;
 
     // Validation
@@ -109,26 +198,43 @@ app.post('/api/register', async (req, res) => {
       return res.json({ success: false, message: 'Password must be at least 6 characters' });
     }
 
-    // Check if user exists
-    const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-    if (existingUser.rows.length > 0) {
-      return res.json({ success: false, message: 'Email already registered' });
+    const supabase = getSupabaseAuthClient();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${getAppBaseUrl(req)}/verify-email.html`,
+        data: {
+          full_name: name,
+          phone: phone || null
+        }
+      }
+    });
+
+    if (error) {
+      return res.json({ success: false, message: error.message || 'Registration failed' });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (!data.user) {
+      return res.json({ success: false, message: 'Unable to create account. Please try again.' });
+    }
 
-    // Create user
-    const result = await pool.query(
-      'INSERT INTO users (name, email, password, phone) VALUES ($1, $2, $3, $4) RETURNING id',
-      [name, email, hashedPassword, phone]
-    );
+    const localUser = await upsertLocalUserFromSupabase(data.user, name, phone);
+    const requiresVerification = !data.user.email_confirmed_at;
 
-    // Log user in
-    req.session.userId = result.rows[0].id;
-    req.session.userName = name;
+    if (!requiresVerification) {
+      req.session.userId = localUser.id;
+      req.session.userName = localUser.name;
+    }
 
-    res.json({ success: true, message: 'Account created successfully!' });
+    res.json({
+      success: true,
+      requiresVerification,
+      email,
+      message: requiresVerification
+        ? 'Account created. Please check your email to verify your account.'
+        : 'Account created successfully!'
+    });
 
   } catch (error) {
     console.error('Registration error:', error);
@@ -139,31 +245,128 @@ app.post('/api/register', async (req, res) => {
 // User login
 app.post('/api/login', async (req, res) => {
   try {
+    if (!hasSupabaseAuthConfig) {
+      return res.status(500).json({
+        success: false,
+        message: 'Authentication service is not configured. Missing SUPABASE_URL or SUPABASE_ANON_KEY.'
+      });
+    }
+
+    await ensureAuthSchema();
     const { email, password } = req.body;
 
     if (!email || !password) {
       return res.json({ success: false, message: 'Email and password are required' });
     }
 
-    const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const supabase = getSupabaseAuthClient();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (user.rows.length === 0) {
+    if (error || !data.user) {
+      const message = error?.message || 'Invalid email or password';
+      if (/confirm|verified|not confirmed/i.test(message)) {
+        return res.json({
+          success: false,
+          requiresVerification: true,
+          email,
+          message: 'Please verify your email before logging in.'
+        });
+      }
       return res.json({ success: false, message: 'Invalid email or password' });
     }
 
-    const validPassword = await verifyPassword(password, user.rows[0].password);
-    if (!validPassword) {
-      return res.json({ success: false, message: 'Invalid email or password' });
+    if (!data.user.email_confirmed_at) {
+      return res.json({
+        success: false,
+        requiresVerification: true,
+        email,
+        message: 'Please verify your email before logging in.'
+      });
     }
 
-    req.session.userId = user.rows[0].id;
-    req.session.userName = user.rows[0].name;
+    const localUser = await upsertLocalUserFromSupabase(data.user);
+
+    req.session.userId = localUser.id;
+    req.session.userName = localUser.name;
 
     res.json({ success: true, message: 'Login successful!' });
 
   } catch (error) {
     console.error('Login error:', error);
     res.json({ success: false, message: 'Login failed. Please try again.' });
+  }
+});
+
+app.post('/api/resend-verification', async (req, res) => {
+  try {
+    if (!hasSupabaseAuthConfig) {
+      return res.status(500).json({
+        success: false,
+        message: 'Authentication service is not configured. Missing SUPABASE_URL or SUPABASE_ANON_KEY.'
+      });
+    }
+
+    const { email } = req.body;
+    if (!email) {
+      return res.json({ success: false, message: 'Email is required' });
+    }
+
+    const supabase = getSupabaseAuthClient();
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${getAppBaseUrl(req)}/verify-email.html`
+      }
+    });
+
+    if (error) {
+      return res.json({ success: false, message: error.message || 'Failed to resend verification email.' });
+    }
+
+    res.json({ success: true, message: 'Verification email sent successfully.' });
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.json({ success: false, message: 'Failed to resend verification email.' });
+  }
+});
+
+app.get('/api/verify-email', async (req, res) => {
+  try {
+    if (!hasSupabaseAuthConfig) {
+      return res.status(500).json({
+        success: false,
+        message: 'Authentication service is not configured. Missing SUPABASE_URL or SUPABASE_ANON_KEY.'
+      });
+    }
+
+    await ensureAuthSchema();
+    const tokenHash = (req.query.token_hash || '').toString().trim();
+    const type = (req.query.type || 'signup').toString().trim();
+
+    if (!tokenHash) {
+      return res.status(400).json({ success: false, message: 'Verification token is required.' });
+    }
+
+    const supabase = getSupabaseAuthClient();
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type
+    });
+
+    if (error || !data.user) {
+      return res.status(400).json({ success: false, message: error?.message || 'Invalid verification link.' });
+    }
+
+    const localUser = await upsertLocalUserFromSupabase(data.user);
+
+    req.session.userId = localUser.id;
+    req.session.userName = localUser.name;
+
+    res.json({ success: true, message: 'Email verified successfully.' });
+  } catch (error) {
+    console.error('Verify email error:', error);
+    res.status(500).json({ success: false, message: 'Email verification failed.' });
   }
 });
 
