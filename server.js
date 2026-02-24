@@ -11,6 +11,7 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
+const isVercel = Boolean(process.env.VERCEL);
 
 function getRequiredEnv(name) {
   const value = process.env[name];
@@ -48,6 +49,10 @@ const pool = new Pool({
 });
 
 // Middleware
+if (isProduction) {
+  // Required so secure session cookies work behind Vercel/other proxies.
+  app.set('trust proxy', 1);
+}
 app.use(express.static(path.join(__dirname)));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -489,10 +494,14 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 RefundHelp server running on http://localhost:${PORT}`);
-  console.log(`📊 Database: Supabase PostgreSQL`);
-  console.log(`🎨 Demo: http://localhost:${PORT}/demo.html`);
-  console.log(`🏠 Home: http://localhost:${PORT}/`);
-  console.log(`🔐 Admin: http://localhost:${PORT}/admin/login.html`);
-});
+if (!isVercel) {
+  app.listen(PORT, () => {
+    console.log(`🚀 RefundHelp server running on http://localhost:${PORT}`);
+    console.log(`📊 Database: Supabase PostgreSQL`);
+    console.log(`🎨 Demo: http://localhost:${PORT}/demo.html`);
+    console.log(`🏠 Home: http://localhost:${PORT}/`);
+    console.log(`🔐 Admin: http://localhost:${PORT}/admin/login.html`);
+  });
+}
+
+module.exports = app;
