@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Claim - ReFundly</title>
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html"
+                style="font-family: var(--font-heading); font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900); margin-bottom: 40px; padding: 0 12px;">
+                <div
+                    style="width: 28px; height: 28px; background: var(--color-primary-600); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-undo" style="font-size: 14px;"></i>
+                </div>
+                <span>ReFundly</span>
+            </a>
+
+            <nav style="flex: 1;">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="submit-claim.html" class="nav-item active">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Claim</span>
+                </a>
+                <a href="history.html" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <a href="#" onclick="logout()" class="nav-item" style="color: var(--color-danger);">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </a>
+        </aside>
+
+        <main class="dashboard-main">
+            <header style="margin-bottom: 40px;">
+                <a href="dashboard.html"
+                    style="color: var(--color-slate-500); font-size: 0.9rem; margin-bottom: 12px; display: inline-block;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                <h1 style="font-size: 1.75rem;">Submit New Claim</h1>
+                <p>Provide details about your refund request.</p>
+            </header>
+
+            <div class="card" style="max-width: 800px;">
+                <form id="claimForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">Type of Claim</label>
+                            <select name="claim_type" id="claimType" class="form-control" required
+                                onchange="updateClaimDescription()">
+                                <option value="" disabled selected>Select category...</option>
+                                <optgroup label="✈️ Travel & Transport">
+                                    <option value="flight-delay">Flight Delay (3+ hours)</option>
+                                    <option value="flight-cancel">Flight Cancellation</option>
+                                    <option value="flight-overbooking">Flight Overbooking</option>
+                                    <option value="baggage-lost">Lost Baggage</option>
+                                    <option value="baggage-damaged">Damaged Baggage</option>
+                                    <option value="train-delay">Train Delay</option>
+                                    <option value="hotel-booking">Hotel Booking Issue</option>
+                                    <option value="car-rental">Car Rental Problem</option>
+                                </optgroup>
+                                <optgroup label="💳 Subscriptions & Services">
+                                    <option value="subscription-unwanted">Unwanted Subscription</option>
+                                    <option value="subscription-duplicate">Duplicate Charge</option>
+                                    <option value="subscription-cancel">Failed Cancellation</option>
+                                    <option value="streaming">Streaming Service</option>
+                                    <option value="gym">Gym Membership</option>
+                                    <option value="software">Software License</option>
+                                </optgroup>
+                                <optgroup label="🛍️ Shopping & Returns">
+                                    <option value="product-defective">Defective Product</option>
+                                    <option value="product-notreceived">Item Not Received</option>
+                                    <option value="product-wrong">Wrong Item Sent</option>
+                                    <option value="product-damaged">Damaged on Arrival</option>
+                                    <option value="warranty">Warranty Claim</option>
+                                </optgroup>
+                                <optgroup label="🏦 Financial Services">
+                                    <option value="bank-fee">Unfair Bank Fee</option>
+                                    <option value="overdraft">Overdraft Charge</option>
+                                    <option value="atm-fee">ATM Fee</option>
+                                    <option value="credit-card">Credit Card Dispute</option>
+                                    <option value="insurance">Insurance Claim</option>
+                                    <option value="loan">Loan Fee Dispute</option>
+                                </optgroup>
+                                <optgroup label="📱 Utilities & Telecom">
+                                    <option value="mobile">Mobile Phone Bill</option>
+                                    <option value="internet">Internet Service</option>
+                                    <option value="electricity">Electricity Bill</option>
+                                    <option value="water">Water Bill</option>
+                                    <option value="gas">Gas Bill</option>
+                                </optgroup>
+                                <optgroup label="🎓 Education & Healthcare">
+                                    <option value="course">Online Course</option>
+                                    <option value="tuition">Tuition Fee</option>
+                                    <option value="medical">Medical Bill</option>
+                                    <option value="prescription">Prescription Charge</option>
+                                </optgroup>
+                                <optgroup label="🏠 Property & Housing">
+                                    <option value="rent">Rent Deposit</option>
+                                    <option value="property-damage">Property Damage</option>
+                                    <option value="maintenance">Maintenance Fee</option>
+                                </optgroup>
+                                <optgroup label="🎫 Events & Entertainment">
+                                    <option value="event-cancel">Event Cancellation</option>
+                                    <option value="ticket">Ticket Refund</option>
+                                    <option value="parking">Parking Fine</option>
+                                </optgroup>
+                                <optgroup label="📦 Other">
+                                    <option value="delivery">Delivery Fee</option>
+                                    <option value="service">Service Charge</option>
+                                    <option value="other">Other (Specify)</option>
+                                </optgroup>
+                            </select>
+                            <small id="claimHelper"
+                                style="display: block; margin-top: 6px; color: var(--color-slate-500); font-size: 0.75rem;"></small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Total Amount</label>
+                            <div style="position: relative;">
+                                <span
+                                    style="position: absolute; left: 16px; top: 11px; color: var(--color-slate-500); font-weight: 600;">£</span>
+                                <input type="number" name="amount" class="form-control" style="padding-left: 32px;"
+                                    placeholder="0.00" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Reference / Booking Number</label>
+                        <input type="text" name="reference" class="form-control" placeholder="E.g. #ABC12345" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description of Issue</label>
+                        <textarea name="description" class="form-control" rows="3"
+                            placeholder="Briefly describe what happened..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Evidence Upload</label>
+                        <div class="upload-zone" id="dropZone" style="padding: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                                <i class="fas fa-cloud-upload-alt"
+                                    style="font-size: 1.5rem; color: var(--color-primary-500);"></i>
+                                <div style="text-align: left;">
+                                    <p style="margin: 0; font-weight: 500; font-size: 0.95rem;">Drag files here or click
+                                    </p>
+                                    <p style="margin: 0; font-size: 0.75rem; color: var(--color-slate-500);">PDF, IMG
+                                        (Max 5MB)</p>
+                                </div>
+                            </div>
+                            <input type="file" name="proof" style="display: none;" id="fileInput">
+                        </div>
+                        <div id="fileList" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                        Submit Claim
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        // Claim type helper texts
+        const claimHelpers = {
+            'flight-delay': 'EU261 compensation: €250-€600 depending on distance',
+            'flight-cancel': 'Full refund + compensation if less than 14 days notice',
+            'flight-overbooking': 'Compensation up to €600 + alternative flight',
+            'baggage-lost': 'Up to £1,200 compensation under Montreal Convention',
+            'train-delay': '25-100% refund for delays over 30 minutes',
+            'subscription-unwanted': 'Full refund if cancelled within 14 days',
+            'product-defective': 'Full refund or replacement under Consumer Rights Act',
+            'bank-fee': 'Unfair charges can be reclaimed up to 6 years back',
+            'mobile': 'Billing errors must be refunded within 30 days'
+        };
+
+        function updateClaimDescription() {
+            const type = document.getElementById('claimType').value;
+            const helper = document.getElementById('claimHelper');
+            helper.textContent = claimHelpers[type] || 'Provide details to help us process your claim';
+            helper.style.color = claimHelpers[type] ? 'var(--color-primary-600)' : 'var(--color-slate-500)';
+        }
+
+        // URL Param Handling
+        const urlParams = new URLSearchParams(window.location.search);
+        const type = urlParams.get('type');
+        if (type) {
+            document.getElementById('claimType').value = type;
+            updateClaimDescription();
+        }
+
+        // File Upload UI
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFiles);
+
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('active');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('active');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('active');
+            fileInput.files = e.dataTransfer.files;
+            handleFiles({ target: fileInput });
+        });
+
+        function handleFiles(e) {
+            const files = e.target.files;
+            const list = document.getElementById('fileList');
+            list.innerHTML = '';
+
+            Array.from(files).forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'badge badge-success';
+                item.style.justifyContent = 'space-between';
+                item.innerHTML = `<span>${file.name}</span> <i class="fas fa-check"></i>`;
+                list.appendChild(item);
+            });
+        }
+
+        // Form Submit
+        document.getElementById('claimForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const btn = this.querySelector('button');
+            const originalText = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            const formData = new FormData(this);
+            // Append files manually if needed or just use formData directly
+
+            try {
+                const response = await fetch('/api/submit-claim', {
+                    method: 'POST',
+                    body: formData // Using FormData for file upload support
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    Toast.success('Claim submitted successfully!');
+                    setTimeout(() => window.location.href = '/dashboard.html', 1500);
+                } else {
+                    Toast.error(result.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (err) {
+                console.error(err);
+                Toast.error('Submission failed');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/';
+        }
+    </script>
+</body>
+
+</html>

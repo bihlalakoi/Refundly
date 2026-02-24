@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ReFundly</title>
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <style>
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html"
+                style="font-family: var(--font-heading); font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900); margin-bottom: 32px; padding: 0 12px;">
+                <div
+                    style="width: 24px; height: 24px; background: var(--color-primary-600); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-undo" style="font-size: 12px;"></i>
+                </div>
+                <span>ReFundly</span>
+            </a>
+
+            <nav style="flex: 1;">
+                <a href="dashboard.html" class="nav-item active">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="submit-claim.html" class="nav-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Claim</span>
+                </a>
+                <a href="history.html" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <a href="#" onclick="logout()" class="nav-item" style="color: var(--color-danger);">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </a>
+        </aside>
+
+        <main class="dashboard-main">
+            <header style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 style="font-size: 1.5rem;">Dashboard <span class="demo-badge" id="demoBadge"
+                            style="display: none;">DEMO MODE</span></h1>
+                    <p style="color: var(--color-slate-500); font-size: 0.9rem;">Welcome back, <span
+                            id="userName">User</span></p>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <div class="dropdown" style="position: relative;">
+                        <button class="btn btn-secondary btn-icon" id="notifBtn" onclick="toggleNotifs()">
+                            <i class="fas fa-bell"></i>
+                            <span
+                                style="position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: var(--color-danger); border-radius: 50%;"></span>
+                        </button>
+                    </div>
+                    <a href="submit-claim.html" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Submit Claim
+                    </a>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span class="stat-label">Total Recovered</span>
+                        <div
+                            style="width: 24px; height: 24px; background: var(--color-primary-50); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--color-primary-600);">
+                            <i class="fas fa-pound-sign" style="font-size: 0.8rem;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="totalValue">£0.00</div>
+                    <div style="font-size: 0.75rem; color: var(--color-success); margin-top: 4px;">
+                        <i class="fas fa-arrow-up"></i> +12% this month
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span class="stat-label">Active Claims</span>
+                        <div
+                            style="width: 24px; height: 24px; background: #e0f2fe; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #0284c7;">
+                            <i class="fas fa-file-invoice" style="font-size: 0.8rem;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="activeClaims">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span class="stat-label">Pending Review</span>
+                        <div
+                            style="width: 24px; height: 24px; background: #fff7ed; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #ea580c;">
+                            <i class="fas fa-clock" style="font-size: 0.8rem;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="pendingClaims">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span class="stat-label">Success Rate</span>
+                        <div
+                            style="width: 24px; height: 24px; background: #dcfce7; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #16a34a;">
+                            <i class="fas fa-check-circle" style="font-size: 0.8rem;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="successRate">--</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <!-- Analytics Chart -->
+                <div class="card" style="padding: 16px; margin-bottom: 0;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0; font-size: 0.95rem;">Recovery Analytics</h3>
+                        <select class="form-control" style="width: auto; padding: 4px 8px; font-size: 0.8rem;">
+                            <option>Last 6 Months</option>
+                            <option>This Year</option>
+                        </select>
+                    </div>
+                    <div style="height: 180px;">
+                        <canvas id="recoveryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card" style="padding: 16px; margin-bottom: 0;">
+                    <h3 style="margin: 0 0 16px 0; font-size: 0.95rem;">Quick Actions</h3>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <a href="submit-claim.html?type=flight" class="btn btn-secondary"
+                            style="justify-content: flex-start; padding: 8px 12px; font-size: 0.85rem;">
+                            <i class="fas fa-plane" style="color: var(--color-primary-500);"></i> Flight Delay
+                        </a>
+                        <a href="submit-claim.html?type=subscription" class="btn btn-secondary"
+                            style="justify-content: flex-start; padding: 8px 12px; font-size: 0.85rem;">
+                            <i class="fas fa-sync" style="color: #6366f1;"></i> Subscription
+                        </a>
+                        <a href="profile.html" class="btn btn-secondary"
+                            style="justify-content: flex-start; padding: 8px 12px; font-size: 0.85rem;">
+                            <i class="fas fa-shield-alt" style="color: #ef4444;"></i> Security Check
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <div class="activity-header">
+                    <h3 style="margin: 0; font-size: 1.1rem;">Recent Claims</h3>
+                    <a href="#" class="btn btn-secondary btn-sm">View All</a>
+                </div>
+                <div id="tableContainer">
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Claim ID</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="claimsBody">
+                            <tr>
+                                <td colspan="6" style="padding: 40px; text-align: center;">
+                                    <i class="fas fa-spinner fa-spin fa-2x"
+                                        style="color: var(--color-primary-200);"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+
+        // Mock data for Demo Mode
+        const MOCK_DATA = {
+            user: { name: 'John Doe' },
+            stats: {
+                total_value: 1250.00,
+                active_claims: 2,
+                pending_claims: 1,
+                success_rate: 98
+            },
+            claims: [
+                {
+                    id: '48291',
+                    claim_type: 'Flight Cancellation',
+                    amount: 450.00,
+                    status: 'In Review',
+                    created_at: new Date(Date.now() - 86400000).toISOString()
+                },
+                {
+                    id: '48285',
+                    claim_type: 'Late Train Refund',
+                    amount: 120.50,
+                    status: 'Approved',
+                    created_at: new Date(Date.now() - 172800000).toISOString()
+                },
+                {
+                    id: '48192',
+                    claim_type: 'Bank Fee',
+                    amount: 679.50,
+                    status: 'Refunded',
+                    created_at: new Date(Date.now() - 432000000).toISOString()
+                }
+            ]
+        };
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/dashboard');
+                if (response.status === 401) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateUI(data.stats, data.claims, data.user);
+                } else {
+                    throw new Error('API failed');
+                }
+
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+                Toast.error('Failed to load dashboard data');
+            }
+        }
+
+        function updateUI(stats, claims, user) {
+            // Stats logic...
+            if (!stats && claims) {
+                stats = {
+                    total_value: claims.reduce((acc, c) => acc + parseFloat(c.amount), 0),
+                    active_claims: claims.length,
+                    pending_claims: claims.filter(c => c.status === 'Submitted' || c.status === 'In Review').length,
+                    success_rate: 100
+                };
+            }
+
+            document.getElementById('totalValue').textContent = formatCurrency(stats.total_value);
+            document.getElementById('activeClaims').textContent = stats.active_claims;
+            document.getElementById('pendingClaims').textContent = stats.pending_claims;
+            document.getElementById('successRate').textContent = stats.success_rate + '%';
+
+            if (user && user.name) {
+                document.getElementById('userName').textContent = user.name;
+            }
+
+            // Render Chart
+            renderChart();
+
+            // Table Logic...
+            const tbody = document.getElementById('claimsBody');
+
+            if (!claims || claims.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 60px;">
+                            <div style="width: 48px; height: 48px; background: var(--color-slate-50); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--color-slate-400);">
+                                <i class="fas fa-clipboard-list fa-lg"></i>
+                            </div>
+                            <h3 style="font-size: 1rem; margin-bottom: 8px;">No claims found</h3>
+                            <a href="submit-claim.html" class="btn btn-secondary btn-sm">Start a Claim</a>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = claims.slice(0, 5).map(claim => `
+                <tr class="hover-row">
+                    <td>
+                        <span style="font-family: monospace; background: var(--color-slate-100); padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">
+                            #${claim.id}
+                        </span>
+                    </td>
+                    <td><div style="font-weight: 500;">${claim.claim_type}</div></td>
+                    <td><div style="font-weight: 600;">${formatCurrency(claim.amount)}</div></td>
+                    <td>
+                        <span class="badge badge-${getStatusColor(claim.status)}">
+                            ${claim.status}
+                        </span>
+                    </td>
+                    <td style="color: var(--color-slate-500);">${formatDate(claim.created_at)}</td>
+                    <td>
+                        <a href="history.html" class="btn btn-icon btn-sm" title="View Details">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('recoveryChart').getContext('2d');
+
+            // Mock data for chart
+            const labels = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
+            const data = [0, 450, 600, 450, 950, 1250];
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Recovered Amount (£)',
+                        data: data,
+                        borderColor: '#10b981',
+                        backgroundColor: (context) => {
+                            const ctx = context.chart.ctx;
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+                            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+                            gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+                            return gradient;
+                        },
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#10b981',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                borderDash: [4, 4],
+                                color: '#f1f5f9'
+                            },
+                            ticks: {
+                                callback: function (value) { return '£' + value; },
+                                font: { size: 10 }
+                            },
+                            border: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 } }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                }
+            });
+        }
+
+        function getStatusColor(status) {
+            switch (status.toLowerCase()) {
+                case 'approved': return 'success';
+                case 'refunded': return 'success';
+                case 'rejected': return 'danger';
+                case 'in review': return 'warning';
+                default: return 'primary';
+            }
+        }
+
+        function toggleNotifs() {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (!dropdown) {
+                createNotificationDropdown();
+            } else {
+                dropdown.classList.toggle('active');
+            }
+        }
+
+        function createNotificationDropdown() {
+            const container = document.querySelector('.dropdown');
+            const dropdown = document.createElement('div');
+            dropdown.id = 'notificationDropdown';
+            dropdown.className = 'notification-dropdown active';
+
+            const notifications = [
+                {
+                    type: 'success',
+                    icon: 'check-circle',
+                    title: 'Claim Approved!',
+                    text: 'Your flight delay claim #48285 has been approved.',
+                    time: '2 hours ago',
+                    unread: true
+                },
+                {
+                    type: 'info',
+                    icon: 'info-circle',
+                    title: 'Document Required',
+                    text: 'Please upload your boarding pass for claim #48291.',
+                    time: '5 hours ago',
+                    unread: true
+                },
+                {
+                    type: 'success',
+                    icon: 'pound-sign',
+                    title: 'Payment Processed',
+                    text: '£120.50 has been transferred to your account.',
+                    time: '1 day ago',
+                    unread: false
+                },
+                {
+                    type: 'warning',
+                    icon: 'exclamation-triangle',
+                    title: 'Action Needed',
+                    text: 'Complete your profile to unlock faster processing.',
+                    time: '2 days ago',
+                    unread: false
+                }
+            ];
+
+            dropdown.innerHTML = `
+                <div class="notification-header">
+                    <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">Notifications</h3>
+                    <button class="btn btn-sm" style="padding: 4px 8px; font-size: 0.75rem;" onclick="markAllRead()">Mark all read</button>
+                </div>
+                <div class="notification-list">
+                    ${notifications.map(notif => `
+                        <div class="notification-item ${notif.unread ? 'unread' : ''}">
+                            <div class="notification-icon ${notif.type}">
+                                <i class="fas fa-${notif.icon}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">${notif.title}</div>
+                                <div class="notification-text">${notif.text}</div>
+                                <div class="notification-time">${notif.time}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="notification-footer">
+                    <a href="#" style="font-size: 0.85rem; color: var(--color-primary-600); font-weight: 500;">View All Notifications</a>
+                </div>
+            `;
+
+            container.appendChild(dropdown);
+
+            // Close on outside click
+            document.addEventListener('click', function closeDropdown(e) {
+                if (!container.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+
+        function markAllRead() {
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+            });
+            Toast.success('All notifications marked as read');
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (error) {
+                // Fall through to redirect even if API call fails.
+            }
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

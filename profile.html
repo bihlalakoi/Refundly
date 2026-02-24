@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - ReFundly</title>
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html"
+                style="font-family: var(--font-heading); font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900); margin-bottom: 40px; padding: 0 12px;">
+                <div
+                    style="width: 28px; height: 28px; background: var(--color-primary-600); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-undo" style="font-size: 14px;"></i>
+                </div>
+                <span>ReFundly</span>
+            </a>
+
+            <nav style="flex: 1;">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="submit-claim.html" class="nav-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Claim</span>
+                </a>
+                <a href="history.html" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+                <a href="profile.html" class="nav-item active">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <a href="#" onclick="logout()" class="nav-item" style="color: var(--color-danger);">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </a>
+        </aside>
+
+        <main class="dashboard-main">
+            <header style="margin-bottom: 32px;">
+                <h1 style="font-size: 1.75rem;">Account Settings</h1>
+                <p>Manage your profile, security, and preferences.</p>
+            </header>
+
+            <!-- Profile Completion Widget -->
+            <div class="completion-widget">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="margin: 0; font-size: 1rem;">Complete Your Profile</h3>
+                    <span id="completionPercent" style="font-size: 1.5rem; font-weight: 700;">60%</span>
+                </div>
+                <div class="completion-progress">
+                    <div class="completion-progress-bar" id="completionBar" style="width: 60%;"></div>
+                </div>
+                <div class="completion-tasks">
+                    <div class="completion-task completed">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Add profile picture</span>
+                    </div>
+                    <div class="completion-task completed">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Verify email address</span>
+                    </div>
+                    <div class="completion-task completed">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Complete personal information</span>
+                    </div>
+                    <div class="completion-task">
+                        <i class="far fa-circle"></i>
+                        <span>Enable two-factor authentication</span>
+                    </div>
+                    <div class="completion-task">
+                        <i class="far fa-circle"></i>
+                        <span>Add payment method</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div
+                        style="color: var(--color-slate-500); font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">
+                        Total Recovered</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-success);" id="totalRecovered">
+                        £1,250.00</div>
+                </div>
+                <div class="stat-card">
+                    <div
+                        style="color: var(--color-slate-500); font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">
+                        Active Claims</div>
+                    <div style="font-size: 1.5rem; font-weight: 700;" id="activeClaims">3</div>
+                </div>
+                <div class="stat-card">
+                    <div
+                        style="color: var(--color-slate-500); font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">
+                        Success Rate</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-primary-600);" id="successRate">
+                        100%</div>
+                </div>
+                <div class="stat-card">
+                    <div
+                        style="color: var(--color-slate-500); font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">
+                        Member Since</div>
+                    <div style="font-size: 1.5rem; font-weight: 700;" id="memberSince">Jan 2026</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('profile')">
+                    <i class="fas fa-user"></i> Profile
+                </div>
+                <div class="tab" onclick="switchTab('security')">
+                    <i class="fas fa-shield-alt"></i> Security
+                </div>
+                <div class="tab" onclick="switchTab('notifications')">
+                    <i class="fas fa-bell"></i> Notifications
+                </div>
+                <div class="tab" onclick="switchTab('privacy')">
+                    <i class="fas fa-lock"></i> Privacy
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="tab-content active">
+                <div class="settings-card">
+                    <h3 style="margin-bottom: 24px;">Personal Information</h3>
+
+                    <div class="profile-picture-upload">
+                        <div class="profile-picture" id="profilePicturePreview">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary"
+                                onclick="document.getElementById('profilePictureInput').click()">
+                                <i class="fas fa-camera"></i> Upload Photo
+                            </button>
+                            <input type="file" id="profilePictureInput" accept="image/*" style="display: none;"
+                                onchange="handleProfilePicture(event)">
+                            <p style="font-size: 0.85rem; color: var(--color-slate-500); margin-top: 8px;">JPG, PNG or
+                                GIF. Max 2MB</p>
+                        </div>
+                    </div>
+
+                    <form id="profileForm" onsubmit="saveProfile(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" id="phone" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="email" class="form-control" disabled
+                                style="background: var(--color-slate-50);">
+                            <small style="display: block; margin-top: 8px; color: var(--color-slate-400);">Contact
+                                support to change email</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Address</label>
+                            <input type="text" id="address" class="form-control" placeholder="123 Main Street">
+                        </div>
+                        <div
+                            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input type="text" id="city" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" id="postal" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Country</label>
+                                <select id="country" class="form-control">
+                                    <option value="GB">United Kingdom</option>
+                                    <option value="US">United States</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="AU">Australia</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label class="form-label">Preferred Currency</label>
+                                <select id="currency" class="form-control">
+                                    <option value="GBP">GBP (£)</option>
+                                    <option value="USD">USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Language</label>
+                                <select id="language" class="form-control">
+                                    <option value="en">English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div id="security-tab" class="tab-content">
+                <!-- Security Score Widget -->
+                <div class="settings-card">
+                    <h3 style="margin-bottom: 20px;">Security Score</h3>
+                    <div class="security-score" id="securityScore">85</div>
+                    <p style="text-align: center; color: var(--color-slate-600); margin-bottom: 24px;">
+                        Your account security is <strong>Good</strong>. Complete the recommendations below to reach
+                        100%.
+                    </p>
+                    <div class="security-recommendations">
+                        <div class="security-item completed">
+                            <i class="fas fa-check-circle" style="color: var(--color-success);"></i>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 500;">Strong Password</div>
+                                <div style="font-size: 0.85rem; color: var(--color-slate-500);">Your password meets all
+                                    requirements</div>
+                            </div>
+                        </div>
+                        <div class="security-item completed">
+                            <i class="fas fa-check-circle" style="color: var(--color-success);"></i>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 500;">Email Verified</div>
+                                <div style="font-size: 0.85rem; color: var(--color-slate-500);">Verified on Jan 15, 2026
+                                </div>
+                            </div>
+                        </div>
+                        <div class="security-item">
+                            <i class="fas fa-exclamation-circle" style="color: var(--color-warning);"></i>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 500;">Enable Two-Factor Authentication</div>
+                                <div style="font-size: 0.85rem; color: var(--color-slate-500);">Add an extra layer of
+                                    security (+15 points)</div>
+                            </div>
+                            <button class="btn btn-sm btn-primary"
+                                onclick="document.getElementById('2faToggle').click()">Enable</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3 style="margin-bottom: 24px;">Change Password</h3>
+                    <form id="passwordForm" onsubmit="changePassword(event)">
+                        <div class="form-group">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" id="newPassword" class="form-control" minlength="6"
+                                    oninput="checkPasswordStrength()">
+                                <div id="passwordStrength" style="margin-top: 8px; font-size: 0.8rem;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" id="confirmPassword" class="form-control">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">Update Password</button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <h3 style="margin-bottom: 16px;">Two-Factor Authentication</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="margin-bottom: 4px; font-weight: 500;">Enable 2FA</p>
+                            <p style="font-size: 0.9rem; color: var(--color-slate-500);">Add an extra layer of security
+                                to your account</p>
+                        </div>
+                        <div class="toggle-switch" id="2faToggle" onclick="toggle2FA()"></div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3 style="margin-bottom: 16px;">Active Sessions</h3>
+                    <div id="sessionsContainer">
+                        <div class="session-item">
+                            <div>
+                                <div style="font-weight: 500;"><i class="fas fa-desktop"></i> Windows PC - Chrome</div>
+                                <div style="font-size: 0.85rem; color: var(--color-slate-500);">London, UK • Current
+                                    Session</div>
+                            </div>
+                            <span class="badge badge-success">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div id="notifications-tab" class="tab-content">
+                <div class="settings-card">
+                    <h3 style="margin-bottom: 24px;">Email Notifications</h3>
+
+                    <div
+                        style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Claim Status Updates</div>
+                                <div style="font-size: 0.9rem; color: var(--color-slate-500);">Get notified when your
+                                    claim status changes</div>
+                            </div>
+                            <div class="toggle-switch active" id="claimUpdates"
+                                onclick="toggleNotification('claimUpdates')"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Marketing Emails</div>
+                                <div style="font-size: 0.9rem; color: var(--color-slate-500);">Receive tips and
+                                    promotional offers</div>
+                            </div>
+                            <div class="toggle-switch" id="marketing" onclick="toggleNotification('marketing')"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Security Alerts</div>
+                                <div style="font-size: 0.9rem; color: var(--color-slate-500);">Important account
+                                    security notifications</div>
+                            </div>
+                            <div class="toggle-switch active" id="security" onclick="toggleNotification('security')">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notification Frequency</label>
+                        <select id="frequency" class="form-control" onchange="saveNotifications()">
+                            <option value="instant">Instant</option>
+                            <option value="daily">Daily Digest</option>
+                            <option value="weekly">Weekly Summary</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Tab -->
+            <div id="privacy-tab" class="tab-content">
+                <div class="settings-card">
+                    <h3 style="margin-bottom: 24px;">Privacy Preferences</h3>
+
+                    <div
+                        style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Profile Visibility</div>
+                                <div style="font-size: 0.9rem; color: var(--color-slate-500);">Make your profile visible
+                                    to other users</div>
+                            </div>
+                            <div class="toggle-switch" id="profileVisibility"
+                                onclick="togglePrivacy('profileVisibility')"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">Data Sharing</div>
+                                <div style="font-size: 0.9rem; color: var(--color-slate-500);">Share anonymized data to
+                                    improve services</div>
+                            </div>
+                            <div class="toggle-switch active" id="dataSharing" onclick="togglePrivacy('dataSharing')">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3 style="margin-bottom: 16px;">Data Management</h3>
+                    <p style="margin-bottom: 24px; color: var(--color-slate-600);">Download or delete your personal data
+                        as per GDPR regulations.</p>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" onclick="exportData()">
+                            <i class="fas fa-download"></i> Download My Data
+                        </button>
+                    </div>
+                </div>
+
+                <div class="settings-card" style="border-color: #fee2e2; background: #fef2f2;">
+                    <h3 style="color: var(--color-danger); margin-bottom: 16px;"><i
+                            class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                    <p style="margin-bottom: 24px;">Once you delete your account, there is no going back. Please be
+                        certain.</p>
+                    <button class="btn btn-outline" onclick="confirmDelete()"
+                        style="border: 1px solid var(--color-danger); color: var(--color-danger); background: white;">
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        // Persist optional UI preferences locally.
+        const STORAGE_KEY = 'refundly_user_profile';
+
+        // Default demo data
+        const defaultData = {
+            name: 'John Doe',
+            email: 'john@example.com',
+            phone: '+44 123 456 7890',
+            address: '123 Main Street',
+            city: 'London',
+            postal: 'SW1A 1AA',
+            country: 'GB',
+            currency: 'GBP',
+            language: 'en',
+            profilePicture: null,
+            notifications: {
+                claimUpdates: true,
+                marketing: false,
+                security: true,
+                frequency: 'instant'
+            },
+            privacy: {
+                profileVisibility: false,
+                dataSharing: true
+            },
+            twoFactorEnabled: false
+        };
+
+        // Load data from localStorage or use defaults
+        function loadUserData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            return stored ? JSON.parse(stored) : defaultData;
+        }
+
+        // Save data to localStorage
+        function saveUserData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userData = loadUserData();
+
+            try {
+                const profileResponse = await fetch('/api/profile');
+                if (profileResponse.status === 401) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    if (profileData.user) {
+                        userData.name = profileData.user.name || userData.name;
+                        userData.email = profileData.user.email || userData.email;
+                        userData.phone = profileData.user.phone || userData.phone;
+                    }
+                }
+
+                const dashboardResponse = await fetch('/api/dashboard');
+                if (dashboardResponse.ok) {
+                    const dashboardData = await dashboardResponse.json();
+                    const stats = dashboardData.stats || {};
+                    document.getElementById('totalRecovered').textContent = formatCurrency(stats.total_value || 0);
+                    document.getElementById('activeClaims').textContent = stats.active_claims || 0;
+                    document.getElementById('successRate').textContent = `${stats.success_rate || 0}%`;
+                }
+            } catch (error) {
+                console.error('Failed to load profile data:', error);
+            }
+
+            // Populate profile fields
+            document.getElementById('name').value = userData.name;
+            document.getElementById('email').value = userData.email;
+            document.getElementById('phone').value = userData.phone;
+            document.getElementById('address').value = userData.address;
+            document.getElementById('city').value = userData.city;
+            document.getElementById('postal').value = userData.postal;
+            document.getElementById('country').value = userData.country;
+            document.getElementById('currency').value = userData.currency;
+            document.getElementById('language').value = userData.language;
+
+            // Set toggles
+            if (userData.notifications.claimUpdates) document.getElementById('claimUpdates').classList.add('active');
+            if (userData.notifications.marketing) document.getElementById('marketing').classList.add('active');
+            if (userData.notifications.security) document.getElementById('security').classList.add('active');
+            document.getElementById('frequency').value = userData.notifications.frequency;
+
+            if (userData.privacy.profileVisibility) document.getElementById('profileVisibility').classList.add('active');
+            if (userData.privacy.dataSharing) document.getElementById('dataSharing').classList.add('active');
+            if (userData.twoFactorEnabled) document.getElementById('2faToggle').classList.add('active');
+
+            // Load profile picture
+            if (userData.profilePicture) {
+                document.getElementById('profilePicturePreview').innerHTML = `<img src="${userData.profilePicture}" alt="Profile">`;
+            }
+
+            // Calculate profile completion
+            calculateProfileCompletion(userData);
+        });
+
+        function calculateProfileCompletion(userData) {
+            let completed = 0;
+            const total = 5;
+
+            if (userData.profilePicture) completed++;
+            if (userData.email) completed++; // Email verified
+            if (userData.name && userData.phone && userData.address) completed++;
+            if (userData.twoFactorEnabled) completed++;
+            if (userData.paymentMethod) completed++; // This would be a new field
+
+            const percentage = Math.round((completed / total) * 100);
+            document.getElementById('completionPercent').textContent = percentage + '%';
+            document.getElementById('completionBar').style.width = percentage + '%';
+
+            // Update task completion states
+            const tasks = document.querySelectorAll('.completion-task');
+            if (userData.profilePicture) tasks[0].classList.add('completed');
+            if (userData.email) tasks[1].classList.add('completed');
+            if (userData.name && userData.phone) tasks[2].classList.add('completed');
+            if (userData.twoFactorEnabled) tasks[3].classList.add('completed');
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('newPassword').value;
+            const strengthDiv = document.getElementById('passwordStrength');
+
+            if (!password) {
+                strengthDiv.innerHTML = '';
+                return;
+            }
+
+            let strength = 0;
+            let feedback = [];
+
+            if (password.length >= 8) strength++;
+            else feedback.push('At least 8 characters');
+
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            else feedback.push('Upper and lowercase letters');
+
+            if (/\d/.test(password)) strength++;
+            else feedback.push('At least one number');
+
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            else feedback.push('Special character');
+
+            const colors = ['#ef4444', '#f59e0b', '#10b981', '#10b981'];
+            const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+
+            strengthDiv.innerHTML = `
+                <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                    ${[0, 1, 2, 3].map(i => `<div style="flex: 1; height: 4px; background: ${i < strength ? colors[strength - 1] : '#e2e8f0'}; border-radius: 2px;"></div>`).join('')}
+                </div>
+                <span style="color: ${colors[strength - 1] || '#64748b'};">${labels[strength - 1] || 'Too short'}</span>
+                ${feedback.length > 0 ? `<span style="color: var(--color-slate-500);"> • ${feedback.join(', ')}</span>` : ''}
+            `;
+        }
+
+        function switchTab(tabName) {
+            // Remove active from all tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active to clicked tab
+            event.target.closest('.tab').classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        async function saveProfile(e) {
+            e.preventDefault();
+            const userData = loadUserData();
+
+            userData.name = document.getElementById('name').value;
+            userData.phone = document.getElementById('phone').value;
+            userData.address = document.getElementById('address').value;
+            userData.city = document.getElementById('city').value;
+            userData.postal = document.getElementById('postal').value;
+            userData.country = document.getElementById('country').value;
+            userData.currency = document.getElementById('currency').value;
+            userData.language = document.getElementById('language').value;
+
+            try {
+                const response = await fetch('/api/profile/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: userData.name,
+                        phone: userData.phone
+                    })
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    Toast.error(result.message || 'Failed to update profile');
+                    return;
+                }
+
+                saveUserData(userData);
+                Toast.success('Profile updated successfully!');
+            } catch (error) {
+                Toast.error('Profile update failed');
+            }
+        }
+
+        function handleProfilePicture(e) {
+            const file = e.target.files[0];
+            if (file && file.size < 2000000) { // 2MB limit
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const userData = loadUserData();
+                    userData.profilePicture = e.target.result;
+                    saveUserData(userData);
+                    document.getElementById('profilePicturePreview').innerHTML = `<img src="${e.target.result}" alt="Profile">`;
+                    Toast.success('Profile picture updated!');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                Toast.error('File too large. Max 2MB');
+            }
+        }
+
+        async function changePassword(e) {
+            e.preventDefault();
+            const currentPass = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            if (newPass !== confirmPass) {
+                Toast.error('Passwords do not match');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        currentPassword: currentPass,
+                        newPassword: newPass
+                    })
+                });
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    Toast.success('Password changed successfully!');
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    Toast.error(result.message || 'Failed to change password');
+                }
+            } catch (error) {
+                Toast.error('Password change failed');
+            }
+        }
+
+        function toggle2FA() {
+            const toggle = document.getElementById('2faToggle');
+            toggle.classList.toggle('active');
+            const enabled = toggle.classList.contains('active');
+
+            const userData = loadUserData();
+            userData.twoFactorEnabled = enabled;
+            saveUserData(userData);
+
+            Toast.success(enabled ? '2FA enabled' : '2FA disabled');
+        }
+
+        function toggleNotification(type) {
+            const toggle = document.getElementById(type);
+            toggle.classList.toggle('active');
+            saveNotifications();
+        }
+
+        function saveNotifications() {
+            const userData = loadUserData();
+            userData.notifications = {
+                claimUpdates: document.getElementById('claimUpdates').classList.contains('active'),
+                marketing: document.getElementById('marketing').classList.contains('active'),
+                security: document.getElementById('security').classList.contains('active'),
+                frequency: document.getElementById('frequency').value
+            };
+            saveUserData(userData);
+            Toast.success('Notification preferences saved');
+        }
+
+        function togglePrivacy(type) {
+            const toggle = document.getElementById(type);
+            toggle.classList.toggle('active');
+
+            const userData = loadUserData();
+            userData.privacy[type] = toggle.classList.contains('active');
+            saveUserData(userData);
+            Toast.success('Privacy settings updated');
+        }
+
+        function exportData() {
+            const userData = loadUserData();
+            const dataStr = JSON.stringify(userData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'refundly_data.json';
+            link.click();
+            Toast.success('Data exported successfully!');
+        }
+
+        function confirmDelete() {
+            if (confirm('Are you absolutely sure? This action cannot be undone.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                Toast.warning('Account data cleared');
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (error) {
+                // Fall through to redirect even if API call fails.
+            }
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

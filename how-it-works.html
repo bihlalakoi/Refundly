@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process - ReFundly</title>
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: var(--color-primary-100);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 80px;
+            position: relative;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: auto;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: auto;
+        }
+
+        .timeline-number {
+            width: 40px;
+            height: 40px;
+            background: var(--color-primary-600);
+            border: 4px solid white;
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+
+        /* Arrows */
+        .timeline-item:nth-child(odd) .timeline-content::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -10px;
+            border-width: 10px 0 10px 10px;
+            border-style: solid;
+            border-color: transparent transparent transparent white;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -10px;
+            border-width: 10px 10px 10px 0;
+            border-style: solid;
+            border-color: transparent white transparent transparent;
+        }
+    </style>
+</head>
+
+<body class="bg-mesh">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html"
+                style="font-family: var(--font-heading); font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900);">
+                <div
+                    style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-undo"></i>
+                </div>
+                ReFundly
+            </a>
+
+            <div style="display: flex; gap: 8px;" class="desktop-nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="services.html" class="nav-link">Services</a>
+                <a href="how-it-works.html" class="nav-link active">Process</a>
+                <a href="about.html" class="nav-link">About</a>
+            </div>
+
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <a href="login.html" style="font-weight: 600; color: var(--color-slate-600);">Log In</a>
+                <a href="register.html" class="btn btn-dark">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <header style="padding: 100px 0 60px; text-align: center;">
+        <div class="container">
+            <span class="badge badge-success" style="margin-bottom: 24px;">Automatic & Risk-Free</span>
+            <h1 style="margin-bottom: 24px;">How we get <span class="text-gradient">results.</span></h1>
+            <p style="font-size: 1.25rem; max-width: 600px; margin: 0 auto; color: var(--color-slate-500);">
+                Our streamlined 4-step process makes claiming refunds effortless.
+            </p>
+        </div>
+    </header>
+
+    <section style="padding-bottom: 100px;">
+        <div class="container">
+            <div class="timeline">
+                <!-- Step 1 -->
+                <div class="timeline-item">
+                    <div class="timeline-number">1</div>
+                    <div class="timeline-content">
+                        <div class="feature-card-icon"
+                            style="background:var(--color-primary-50); color:var(--color-primary-600); width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; margin-bottom:16px;">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <h3>Submit Your Details</h3>
+                        <p>Enter your flight, subscription, or purchase details into our secure platform. Upload any
+                            relevant receipts or booking confirmations in seconds.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="timeline-item">
+                    <div class="timeline-number">2</div>
+                    <div class="timeline-content">
+                        <div class="feature-card-icon"
+                            style="background:var(--color-primary-50); color:var(--color-primary-600); width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; margin-bottom:16px;">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>AI Analysis</h3>
+                        <p>Our proprietary AI scans your claim against 500+ regulatory frameworks (EU261, CPA, etc.) to
+                            determine eligibility and maximum value.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="timeline-item">
+                    <div class="timeline-number">3</div>
+                    <div class="timeline-content">
+                        <div class="feature-card-icon"
+                            style="background:var(--color-primary-50); color:var(--color-primary-600); width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; margin-bottom:16px;">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <h3>Legal Processing</h3>
+                        <p>We automatically generate legal letters and negotiate directly with the airline, bank, or
+                            merchant on your behalf.</p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="timeline-item">
+                    <div class="timeline-number">4</div>
+                    <div class="timeline-content">
+                        <div class="feature-card-icon"
+                            style="background:var(--color-success); color:white; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; margin-bottom:16px;">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <h3>Get Paid</h3>
+                        <p>Once approved, funds are transferred directly to your bank account, minus our success fee.
+                            Fast, simple, and secure.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 60px;">
+                <a href="register.html" class="btn btn-primary btn-lg">Start your risk-free claim</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;">
+                <div>
+                    <h3 style="color: white; margin-bottom: 24px;">ReFundly</h3>
+                    <p>The leading automated refund recovery platform.</p>
+                </div>
+                <div>
+                    <h4>Platform</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="how-it-works.html">How it Works</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Company</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Legal</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="privacy.html">Privacy</a></li>
+                        <li><a href="terms.html">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                style="border-top: 1px solid var(--color-slate-800); margin-top: 60px; padding-top: 32px; text-align: center; color: var(--color-slate-500);">
+                © 2026 ReFundly Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

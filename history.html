@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim History - ReFundly</title>
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a href="index.html"
+                style="font-family: var(--font-heading); font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900); margin-bottom: 40px; padding: 0 12px;">
+                <div
+                    style="width: 28px; height: 28px; background: var(--color-primary-600); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-undo" style="font-size: 14px;"></i>
+                </div>
+                <span>ReFundly</span>
+            </a>
+
+            <nav style="flex: 1;">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="submit-claim.html" class="nav-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Claim</span>
+                </a>
+                <a href="history.html" class="nav-item active">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <a href="#" onclick="logout()" class="nav-item" style="color: var(--color-danger);">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </a>
+        </aside>
+
+        <main class="dashboard-main">
+            <header style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <h1 style="font-size: 1.5rem;">Claim History <span class="demo-badge" id="demoBadge"
+                                style="display: none;">DEMO MODE</span></h1>
+                        <p style="color: var(--color-slate-500); margin: 0;">View and track all your refund requests.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-sm" onclick="exportToCSV()">
+                            <i class="fas fa-file-csv"></i> Export CSV
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportToPDF()">
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div
+                    style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; background: white; padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <input type="text" id="searchInput" class="form-control"
+                            placeholder="🔍 Search by ID, type, or description..."
+                            style="padding: 8px 12px; font-size: 0.9rem;" oninput="filterClaims()">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="statusFilter" class="form-control" style="padding: 8px 12px; font-size: 0.9rem;"
+                            onchange="filterClaims()">
+                            <option value="">All Statuses</option>
+                            <option value="In Review">In Review</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Refunded">Refunded</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="typeFilter" class="form-control" style="padding: 8px 12px; font-size: 0.9rem;"
+                            onchange="filterClaims()">
+                            <option value="">All Types</option>
+                            <option value="Flight">Flight</option>
+                            <option value="Train">Train</option>
+                            <option value="Subscription">Subscription</option>
+                            <option value="Bank">Bank</option>
+                            <option value="Product">Product</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="sortFilter" class="form-control" style="padding: 8px 12px; font-size: 0.9rem;"
+                            onchange="filterClaims()">
+                            <option value="date-desc">Newest First</option>
+                            <option value="date-asc">Oldest First</option>
+                            <option value="amount-desc">Highest Amount</option>
+                            <option value="amount-asc">Lowest Amount</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <div class="card" style="padding: 0;">
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Claim ID</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Submitted Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr>
+                            <td colspan="6" style="padding: 40px; text-align: center;">
+                                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--color-primary-200);"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadHistory);
+
+        // Mock data for Demo Mode
+        const MOCK_HISTORY = [
+            {
+                id: '48291',
+                type: 'Flight Cancellation',
+                description: 'British Airways flight BA204 cancelled due to technical issue.',
+                amount: 450.00,
+                status: 'In Review',
+                date: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                id: '48285',
+                type: 'Late Train Refund',
+                description: 'Avanti West Coast delayed by 120 minutes.',
+                amount: 120.50,
+                status: 'Approved',
+                date: new Date(Date.now() - 172800000).toISOString()
+            },
+            {
+                id: '48192',
+                type: 'Bank Fee',
+                description: 'Unfair overdraft fees charged in December.',
+                amount: 679.50,
+                status: 'Refunded',
+                date: new Date(Date.now() - 432000000).toISOString()
+            },
+            {
+                id: '47901',
+                type: 'Product Return',
+                description: 'Defective laptop charger returned to Amazon.',
+                amount: 45.99,
+                status: 'Refunded',
+                date: new Date(Date.now() - 800000000).toISOString()
+            },
+            {
+                id: '47550',
+                type: 'Subscription',
+                description: 'Netflix subscription charged after cancellation.',
+                amount: 15.99,
+                status: 'Rejected',
+                date: new Date(Date.now() - 1200000000).toISOString()
+            }
+        ];
+
+        let allClaims = [];
+        let filteredClaims = [];
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/claims/history');
+                if (response.status === 401) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                if (response.ok) {
+                    const data = await response.json();
+                    allClaims = (data.claims || []).map(claim => ({
+                        ...claim,
+                        id: String(claim.id),
+                        type: claim.type || claim.claim_type || 'Unknown',
+                        date: claim.date || claim.created_at
+                    }));
+                } else {
+                    throw new Error('API failed');
+                }
+            } catch (error) {
+                console.error('Failed to load history:', error);
+                Toast.error('Failed to load claim history');
+                allClaims = [];
+            }
+            filteredClaims = [...allClaims];
+            renderTable(filteredClaims);
+        }
+
+        function filterClaims() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+
+            // Filter
+            filteredClaims = allClaims.filter(claim => {
+                const matchesSearch = !searchTerm ||
+                    claim.id.toLowerCase().includes(searchTerm) ||
+                    claim.type.toLowerCase().includes(searchTerm) ||
+                    (claim.description && claim.description.toLowerCase().includes(searchTerm));
+
+                const matchesStatus = !statusFilter || claim.status === statusFilter;
+                const matchesType = !typeFilter || claim.type.includes(typeFilter);
+
+                return matchesSearch && matchesStatus && matchesType;
+            });
+
+            // Sort
+            filteredClaims.sort((a, b) => {
+                switch (sortFilter) {
+                    case 'date-desc':
+                        return new Date(b.date) - new Date(a.date);
+                    case 'date-asc':
+                        return new Date(a.date) - new Date(b.date);
+                    case 'amount-desc':
+                        return b.amount - a.amount;
+                    case 'amount-asc':
+                        return a.amount - b.amount;
+                    default:
+                        return 0;
+                }
+            });
+
+            renderTable(filteredClaims);
+        }
+
+        function exportToCSV() {
+            const headers = ['Claim ID', 'Type', 'Description', 'Amount', 'Status', 'Date'];
+            const rows = filteredClaims.map(claim => [
+                claim.id,
+                claim.type,
+                claim.description || '',
+                claim.amount,
+                claim.status,
+                formatDate(claim.date)
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `refundly-claims-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            Toast.success('Claims exported to CSV!');
+        }
+
+        function exportToPDF() {
+            Toast.info('PDF export feature coming soon! Use CSV for now.');
+        }
+
+        function renderTable(claims) {
+            const tbody = document.getElementById('historyBody');
+
+            if (!claims || claims.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 60px;">
+                            <div style="width: 48px; height: 48px; background: var(--color-slate-50); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--color-slate-400);">
+                                <i class="fas fa-clipboard-list fa-lg"></i>
+                            </div>
+                            <h3 style="font-size: 1rem; margin-bottom: 8px;">No claims found</h3>
+                            <a href="submit-claim.html" class="btn btn-secondary btn-sm">Start a Claim</a>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = claims.map(claim => `
+                <tr class="hover-row">
+                    <td>
+                        <span style="font-family: monospace; background: var(--color-slate-100); padding: 4px 8px; border-radius: 4px; font-size: 0.9rem;">
+                            #${claim.id}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="font-weight: 500; margin-bottom: 2px;">${claim.type || claim.claim_type}</div>
+                        <div style="font-size: 0.8rem; color: var(--color-slate-500); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${claim.description || 'No description provided'}
+                        </div>
+                    </td>
+                    <td><div style="font-weight: 600;">${formatCurrency(claim.amount)}</div></td>
+                    <td>
+                        <span class="badge badge-${getStatusColor(claim.status)}">
+                            ${claim.status}
+                        </span>
+                    </td>
+                    <td style="color: var(--color-slate-500);">${formatDate(claim.date || claim.created_at)}</td>
+                    <td>
+                        <button class="btn btn-icon btn-sm" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusColor(status) {
+            switch (status.toLowerCase()) {
+                case 'approved': return 'success';
+                case 'refunded': return 'success';
+                case 'rejected': return 'danger';
+                case 'in review': return 'warning';
+                default: return 'primary';
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (error) {
+                // Fall through to redirect even if API call fails.
+            }
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

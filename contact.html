@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - ReFundly</title>
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <style>
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .contact-info-card {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            background: var(--color-primary-50);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-primary-600);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body class="bg-mesh">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html"
+                style="font-family: var(--font-heading); font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900);">
+                <div
+                    style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-undo"></i>
+                </div>
+                ReFundly
+            </a>
+
+            <div style="display: flex; gap: 8px;" class="desktop-nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="services.html" class="nav-link">Services</a>
+                <a href="how-it-works.html" class="nav-link">Process</a>
+                <a href="about.html" class="nav-link">About</a>
+            </div>
+
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <a href="login.html" style="font-weight: 600; color: var(--color-slate-600);">Log In</a>
+                <a href="register.html" class="btn btn-dark">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <header style="padding: 100px 0 60px;">
+        <div class="container text-center">
+            <span class="badge badge-success" style="margin-bottom: 24px;">24/7 Support</span>
+            <h1 style="margin-bottom: 24px;">Get in touch with our <span class="text-gradient">expert team.</span></h1>
+            <p style="font-size: 1.25rem; max-width: 600px; margin: 0 auto; color: var(--color-slate-500);">
+                Have questions about your claim or need technical support? We're here to help.
+            </p>
+        </div>
+    </header>
+
+    <section style="padding-bottom: 100px;">
+        <div class="container">
+            <div class="contact-grid">
+                <!-- Info Side -->
+                <div>
+                    <div class="contact-info-card">
+                        <div class="icon-box"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <h3>Email Support</h3>
+                            <p>For general inquiries and partnerships.</p>
+                            <a href="mailto:support@refundly.com" style="font-weight: 600;">support@refundly.com</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card">
+                        <div class="icon-box"><i class="fas fa-comment-dots"></i></div>
+                        <div>
+                            <h3>Live Chat</h3>
+                            <p>Chat with our support team in real-time.</p>
+                            <span style="color: var(--color-success); font-weight: 600;">Available 9am - 5pm GMT</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card">
+                        <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <h3>Office</h3>
+                            <p>123 Fintech Avenue, Tech City<br>London, EC1V 9QR</p>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-top: 40px; padding: 30px; background: var(--color-slate-900); border-radius: 20px; color: white;">
+                        <h3 style="color: white; margin-bottom: 16px;">Enterprise Inquiry?</h3>
+                        <p style="color: var(--color-slate-400); margin-bottom: 24px;">We offer bulk claim processing
+                            API for travel agencies and banks.</p>
+                        <a href="#" class="btn btn-primary">Contact Sales</a>
+                    </div>
+                </div>
+
+                <!-- Form Side -->
+                <div class="card" style="padding: 40px;">
+                    <div id="alertContainer"></div>
+                    <form id="contactForm">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
+                            <div>
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" name="firstName" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" name="lastName" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Subject</label>
+                            <select class="form-control" name="subject" required>
+                                <option value="" disabled selected>Select a topic...</option>
+                                <option value="claim">Claim Inquiry</option>
+                                <option value="tech">Technical Support</option>
+                                <option value="partnership">Partnership</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-control" name="message" rows="5" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark btn-lg" style="width: 100%;">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;">
+                <div>
+                    <h3 style="color: white; margin-bottom: 24px;">ReFundly</h3>
+                    <p>The leading automated refund recovery platform.</p>
+                </div>
+                <div>
+                    <h4>Platform</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="how-it-works.html">How it Works</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Company</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Legal</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="privacy.html">Privacy</a></li>
+                        <li><a href="terms.html">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                style="border-top: 1px solid var(--color-slate-800); margin-top: 60px; padding-top: 32px; text-align: center; color: var(--color-slate-500);">
+                © 2026 ReFundly Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const btn = this.querySelector('button');
+            const originalText = btn.innerHTML;
+
+            if (!FormValidator.validateForm(this)) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            // Send to API
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    Toast.success(result.message);
+                    this.reset();
+                } else {
+                    Toast.error(result.message);
+                }
+            } catch (error) {
+                Toast.error('Failed to send message');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+
+        FormValidator.attachRealTimeValidation(document.getElementById('contactForm'));
+    </script>
+</body>
+
+</html>

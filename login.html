@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ReFundly</title>
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+        }
+
+        .auth-visual {
+            background: var(--color-slate-900);
+            position: relative;
+            overflow: hidden;
+            padding: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .visual-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 50% 50%, var(--color-primary-900) 0%, transparent 70%);
+            opacity: 0.6;
+        }
+
+        .auth-content {
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-visual {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="split-layout">
+        <!-- Visual Side -->
+        <div class="auth-visual">
+            <div class="visual-pattern"></div>
+            <div style="position: relative; z-index: 10; max-width: 400px;">
+                <div
+                    style="width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 32px; backdrop-filter: blur(10px);">
+                    <i class="fas fa-lock" style="font-size: 32px; color: var(--color-primary-400);"></i>
+                </div>
+                <h2 style="color: white; font-size: 2rem; margin-bottom: 16px;">Welcome Back</h2>
+                <p style="color: var(--color-slate-400); font-size: 1.1rem;">Securely access your dashboard to track
+                    your claims and manage your refunds.</p>
+            </div>
+        </div>
+
+        <!-- Form Side -->
+        <div class="auth-content">
+            <div class="auth-card">
+                <a href="index.html"
+                    style="font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900); margin-bottom: 40px;">
+                    <div
+                        style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fas fa-undo"></i>
+                    </div>
+                    ReFundly
+                </a>
+
+                <h1 style="font-size: 2rem; margin-bottom: 12px;">Log in</h1>
+                <p style="margin-bottom: 32px;">Enter your credentials to access your account.</p>
+
+                <div id="alertContainer"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="john@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <label class="form-label" style="margin: 0;">Password</label>
+                            <a href="forgot-password.html" style="font-size: 0.9rem; font-weight: 500;">Forgot
+                                password?</a>
+                        </div>
+                        <input type="password" name="password" class="form-control" placeholder="Enter password"
+                            required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">Sign In</button>
+                </form>
+
+                <p style="margin-top: 24px; text-align: center; font-size: 0.9rem;">
+                    Don't have an account? <a href="register.html" style="font-weight: 600;">Sign up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        const form = document.getElementById('loginForm');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+            btn.disabled = true;
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    window.location.href = '/dashboard.html';
+                } else {
+                    Toast.error(result.message || 'Login failed');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                Toast.error('An error occurred');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

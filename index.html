@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReFundly - Enterprise Grade Refund Recovery</title>
+    <meta name="description"
+        content="Professional refund claim service. Recover money from flights, subscriptions, and purchases with 98% success rate.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- New Design System -->
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+
+    <style>
+        /* Specific Homepage Styles */
+        .hero-section {
+            padding: 120px 0 80px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid var(--color-primary-100);
+            border-radius: 100px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            gap: 8px;
+            color: var(--color-slate-700);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .hero-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--color-success);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px var(--color-primary-100);
+        }
+
+        .hero-visual-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: var(--shadow-colored);
+            position: relative;
+            z-index: 10;
+        }
+
+        .floating-badge {
+            position: absolute;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--border-color);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .badge-1 {
+            top: -20px;
+            right: -20px;
+            z-index: 20;
+        }
+
+        .badge-2 {
+            bottom: -30px;
+            left: -20px;
+            z-index: 20;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .partners-strip {
+            padding: 60px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            background: white;
+            margin: 60px 0;
+            text-align: center;
+        }
+
+        .partners-logos {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            opacity: 0.6;
+            filter: grayscale(100%);
+        }
+
+        .feature-card-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--color-primary-50);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--color-primary-600);
+            margin-bottom: 24px;
+        }
+
+        .testimonial-card {
+            padding: 24px;
+            border-radius: 20px;
+            background: white;
+            border: 1px solid var(--color-slate-100);
+        }
+    </style>
+</head>
+
+<body class="bg-mesh">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html"
+                style="font-family: var(--font-heading); font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900);">
+                <div
+                    style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-undo"></i>
+                </div>
+                ReFundly
+            </a>
+
+            <div style="display: flex; gap: 8px;" class="desktop-nav">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="services.html" class="nav-link">Services</a>
+                <a href="how-it-works.html" class="nav-link">Process</a>
+                <a href="about.html" class="nav-link">About</a>
+            </div>
+
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <a href="login.html" style="font-weight: 600; color: var(--color-slate-600);">Log In</a>
+                <a href="register.html" class="btn btn-dark">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-grid">
+                <!-- Left Content -->
+                <div class="hero-text">
+                    <div class="hero-badge-pill">
+                        <div class="hero-dot"></div>
+                        Over £2.5M Recovered for Clients
+                    </div>
+                    <h1>Recover what's <span class="text-gradient">rightfully yours.</span></h1>
+                    <p style="font-size: 1.25rem; margin: 24px 0 40px; color: var(--color-slate-500);">
+                        The automated refund platform that handles flights, subscriptions, and purchases. No win, no
+                        fee.
+                    </p>
+                    <div style="display: flex; gap: 16px;">
+                        <a href="register.html" class="btn btn-primary btn-lg">
+                            Start Your Claim <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="how-it-works.html" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-play"></i> How it works
+                        </a>
+                    </div>
+
+                    <div style="margin-top: 48px; display: flex; align-items: center; gap: 24px;">
+                        <div style="display: flex; -space-x-2: 8px;">
+                            <!-- Avatars could go here -->
+                            <div style="display: flex; color: #fbbf24; gap: 4px;">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                    class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <p style="margin: 0; font-size: 0.9rem; font-weight: 600;">Trusted by 50,000+ users</p>
+                    </div>
+                </div>
+
+                <!-- Right Visual -->
+                <div style="position: relative;">
+                    <!-- Floating Badge 1 -->
+                    <div class="floating-badge badge-1">
+                        <div
+                            style="width: 40px; height: 40px; background: #dcfce7; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--color-success);">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--color-slate-900);">£299.00</div>
+                            <div style="font-size: 0.8rem; color: var(--color-slate-500);">Refund Approved</div>
+                        </div>
+                    </div>
+
+                    <!-- Floating Badge 2 -->
+                    <div class="floating-badge badge-2">
+                        <div
+                            style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--color-slate-600);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--color-slate-900);">24 Hours</div>
+                            <div style="font-size: 0.8rem; color: var(--color-slate-500);">Avg. Response</div>
+                        </div>
+                    </div>
+
+                    <!-- Main Card -->
+                    <div class="hero-visual-card">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                            <div>
+                                <div style="font-size: 0.9rem; color: var(--color-slate-500);">Total Recovered</div>
+                                <div style="font-size: 2.5rem; font-weight: 800; color: var(--color-slate-900);">
+                                    £2,540.00</div>
+                            </div>
+                            <div
+                                style="width: 48px; height: 48px; border-radius: 12px; background: var(--color-slate-100); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-chart-line" style="color: var(--color-slate-900);"></i>
+                            </div>
+                        </div>
+
+                        <!-- Mini List -->
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <div
+                                style="display: flex; align-items: center; gap: 16px; padding: 12px; border-radius: 12px; background: white; border: 1px solid var(--border-color);">
+                                <div
+                                    style="width: 40px; height: 40px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #ef4444;">
+                                    <i class="fas fa-plane"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600;">British Airways</div>
+                                    <div style="font-size: 0.8rem; color: var(--color-slate-500);">Flight Delay</div>
+                                </div>
+                                <div style="font-weight: 700; color: var(--color-success);">+£520</div>
+                            </div>
+
+                            <div
+                                style="display: flex; align-items: center; gap: 16px; padding: 12px; border-radius: 12px; background: white; border: 1px solid var(--border-color);">
+                                <div
+                                    style="width: 40px; height: 40px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; color: #6366f1;">
+                                    <i class="fas fa-tv"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600;">Netflix</div>
+                                    <div style="font-size: 0.8rem; color: var(--color-slate-500);">Subscription</div>
+                                </div>
+                                <div style="font-weight: 700; color: var(--color-success);">+£15.99</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Strip -->
+    <div class="partners-strip">
+        <div class="container">
+            <p
+                style="margin-bottom: 24px; font-weight: 600; color: var(--color-slate-400); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">
+                Supported Merchants & Services</p>
+            <div class="partners-logos">
+                <h3 style="margin: 0; color: var(--color-slate-400);">AIRLINES</h3>
+                <h3 style="margin: 0; color: var(--color-slate-400);">BANKS</h3>
+                <h3 style="margin: 0; color: var(--color-slate-400);">SaaS</h3>
+                <h3 style="margin: 0; color: var(--color-slate-400);">RETAIL</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <section class="section" style="padding: 100px 0;">
+        <div class="container">
+            <div style="text-align: center; max-width: 600px; margin: 0 auto 60px;">
+                <h2 style="margin-bottom: 16px;">Everything you need to <span class="text-gradient">get paid.</span>
+                </h2>
+                <p>We handle the complex legal and administrative work so you can focus on what matters.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
+                <div class="card card-hover">
+                    <div class="feature-card-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Fast Processing</h3>
+                    <p>Our automated systems process claims 5x faster than manual submissions.</p>
+                </div>
+                <div class="card card-hover">
+                    <div class="feature-card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Bank-Grade Security</h3>
+                    <p>Your data is encrypted with 256-bit SSL and never shared without permission.</p>
+                </div>
+                <div class="card card-hover">
+                    <div class="feature-card-icon">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <h3>No Win, No Fee</h3>
+                    <p>We only get paid when you do. Our incentives are perfectly aligned.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section style="background: var(--color-slate-900); padding: 100px 0; color: white;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
+                <div>
+                    <h2 style="color: white; margin-bottom: 24px;">Numbers that speak for themselves</h2>
+                    <p style="color: var(--color-slate-400); margin-bottom: 32px;">We've established a reputation for
+                        success across the industry.</p>
+                    <a href="about.html" class="btn btn-primary">Read our story</a>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                    <div>
+                        <div style="font-size: 3.5rem; font-weight: 800; color: var(--color-primary-400);">98%</div>
+                        <div style="color: var(--color-slate-400);">Success Rate</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 3.5rem; font-weight: 800; color: var(--color-primary-400);">£2.5M+</div>
+                        <div style="color: var(--color-slate-400);">Recovered</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 3.5rem; font-weight: 800; color: var(--color-primary-400);">24h</div>
+                        <div style="color: var(--color-slate-400);">Avg. Response</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 3.5rem; font-weight: 800; color: var(--color-primary-400);">50k+</div>
+                        <div style="color: var(--color-slate-400);">Users</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;">
+                <div>
+                    <h3 style="color: white; margin-bottom: 24px;">ReFundly</h3>
+                    <p>The leading automated refund recovery platform.</p>
+                </div>
+                <div>
+                    <h4>Platform</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="how-it-works.html">How it Works</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Company</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Legal</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="privacy.html">Privacy</a></li>
+                        <li><a href="terms.html">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                style="border-top: 1px solid var(--color-slate-800); margin-top: 60px; padding-top: 32px; text-align: center; color: var(--color-slate-500);">
+                © 2026 ReFundly Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/utils.js"></script>
+</body>
+
+</html>

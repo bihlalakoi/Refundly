@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - ReFundly</title>
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .page-hero {
+            padding: 100px 0 60px;
+            text-align: center;
+        }
+
+        .mission-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 60px;
+        }
+
+        .value-card {
+            background: white;
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .value-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-primary-300);
+        }
+
+        .value-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--color-primary-50);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--color-primary-600);
+            margin-bottom: 24px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .team-photo {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: var(--color-slate-100);
+        }
+
+        .team-info {
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-mesh">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content"
+                style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <a href="index.html"
+                    style="font-family: var(--font-heading); font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900);">
+                    <div
+                        style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fas fa-undo"></i>
+                    </div>
+                    ReFundly
+                </a>
+
+                <div style="display: flex; gap: 8px;" class="desktop-nav">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="services.html" class="nav-link">Services</a>
+                    <a href="how-it-works.html" class="nav-link">Process</a>
+                    <a href="about.html" class="nav-link active">About</a>
+                </div>
+
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <a href="login.html" style="font-weight: 600; color: var(--color-slate-600);">Log In</a>
+                    <a href="register.html" class="btn btn-dark">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="page-hero">
+        <div class="container">
+            <span class="badge badge-success" style="margin-bottom: 24px;">Our Story</span>
+            <h1 style="margin-bottom: 24px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                Empowering consumers to <span class="text-gradient">reclaim what's theirs.</span>
+            </h1>
+            <p style="font-size: 1.25rem; max-width: 600px; margin: 0 auto; color: var(--color-slate-500);">
+                We're on a mission to democratize access to professional refund services through technology and
+                transparency.
+            </p>
+        </div>
+    </section>
+
+    <!-- Mission -->
+    <section style="padding: 40px 0;">
+        <div class="container">
+            <div class="mission-card">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+                    <div>
+                        <h2>Why we started</h2>
+                        <p style="margin-bottom: 24px; font-size: 1.1rem;">Millions of pounds go unclaimed every year
+                            because the refund process is intentionally complex. Airlines, banks, and subscription
+                            services count on you giving up.</p>
+                        <p style="font-size: 1.1rem;">Founded in 2023 by legal and tech experts, ReFundly automates the
+                            bureaucracy. We handle the paperwork, the legal letters, and the negotiations, so you can
+                            just sit back and get paid.</p>
+
+                        <div
+                            style="display: flex; gap: 40px; margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 32px;">
+                            <div>
+                                <div style="font-size: 2rem; font-weight: 800; color: var(--color-primary-600);">£2.5M+
+                                </div>
+                                <div style="color: var(--color-slate-500);">Recovered</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2rem; font-weight: 800; color: var(--color-primary-600);">98%
+                                </div>
+                                <div style="color: var(--color-slate-500);">Success Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position: relative;">
+                        <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80"
+                            alt="Team working" style="border-radius: 20px; width: 100%; box-shadow: var(--shadow-xl);">
+                        <div
+                            style="position: absolute; bottom: -20px; left: -20px; background: white; padding: 20px; border-radius: 16px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color);">
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <div
+                                    style="width: 48px; height: 48px; background: #e0f2fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0284c7;">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 700;">Zero Risk</div>
+                                    <div style="font-size: 0.8rem; color: var(--color-slate-500);">No win, no fee
+                                        guarantee</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values -->
+    <section class="section" style="padding: 60px 0 100px;">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 60px;">Our Core Values</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
+                <div class="value-card">
+                    <div class="value-icon"><i class="fas fa-balance-scale"></i></div>
+                    <h3>Legal & Ethical</h3>
+                    <p>We only pursue claims that are legally valid. We play by the rules to ensure long-term success
+                        for our clients.</p>
+                </div>
+
+                <div class="value-card">
+                    <div class="value-icon"><i class="fas fa-glasses"></i></div>
+                    <h3>Transparency</h3>
+                    <p>No hidden fees. No fine print. You'll always know exactly what's happening with your claim.</p>
+                </div>
+
+                <div class="value-card">
+                    <div class="value-icon"><i class="fas fa-rocket"></i></div>
+                    <h3>Technology First</h3>
+                    <p>We use AI and automation to process claims faster than any manual legal service can match.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team -->
+    <section style="padding-bottom: 100px;">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 16px;">Leadership Team</h2>
+            <p style="text-align: center; color: var(--color-slate-500); margin-bottom: 40px;">The experts fighting for
+                your consumer rights</p>
+
+            <div class="team-grid">
+                <!-- Member 1 -->
+                <div class="team-card">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                        class="team-photo" alt="Sarah Johnson" loading="lazy">
+                    <div class="team-info">
+                        <h3>Sarah Johnson</h3>
+                        <p style="color: var(--color-primary-600); font-size: 0.9rem; font-weight: 500;">CEO & Founder
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Member 2 -->
+                <div class="team-card">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                        class="team-photo" alt="Michael Chen" loading="lazy">
+                    <div class="team-info">
+                        <h3>Michael Chen</h3>
+                        <p style="color: var(--color-primary-600); font-size: 0.9rem; font-weight: 500;">CTO</p>
+                    </div>
+                </div>
+
+                <!-- Member 3 -->
+                <div class="team-card">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                        class="team-photo" alt="Emma Rodriguez" loading="lazy">
+                    <div class="team-info">
+                        <h3>Emma Rodriguez</h3>
+                        <p style="color: var(--color-primary-600); font-size: 0.9rem; font-weight: 500;">Head of Legal
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Member 4 -->
+                <div class="team-card">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                        class="team-photo" alt="David Park" loading="lazy">
+                    <div class="team-info">
+                        <h3>David Park</h3>
+                        <p style="color: var(--color-primary-600); font-size: 0.9rem; font-weight: 500;">Operations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;">
+                <div>
+                    <h3 style="color: white; margin-bottom: 24px;">ReFundly</h3>
+                    <p>The leading automated refund recovery platform.</p>
+                </div>
+                <div>
+                    <h4>Platform</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="how-it-works.html">How it Works</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Company</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Legal</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="privacy.html">Privacy</a></li>
+                        <li><a href="terms.html">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                style="border-top: 1px solid var(--color-slate-800); margin-top: 60px; padding-top: 32px; text-align: center; color: var(--color-slate-500);">
+                © 2026 ReFundly Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

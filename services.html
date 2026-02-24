@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - ReFundly</title>
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components-v2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .service-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--color-primary-200);
+        }
+
+        .service-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--color-primary-50);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            color: var(--color-primary-600);
+            margin-bottom: 32px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 24px 0 32px;
+            padding: 0;
+            flex: 1;
+        }
+
+        .feature-list li {
+            padding-left: 28px;
+            position: relative;
+            margin-bottom: 12px;
+            color: var(--color-slate-600);
+        }
+
+        .feature-list li::before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--color-success);
+        }
+    </style>
+</head>
+
+<body class="bg-mesh">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html"
+                style="font-family: var(--font-heading); font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; color: var(--color-slate-900);">
+                <div
+                    style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-undo"></i>
+                </div>
+                ReFundly
+            </a>
+
+            <div style="display: flex; gap: 8px;" class="desktop-nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="services.html" class="nav-link active">Services</a>
+                <a href="how-it-works.html" class="nav-link">Process</a>
+                <a href="about.html" class="nav-link">About</a>
+            </div>
+
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <a href="login.html" style="font-weight: 600; color: var(--color-slate-600);">Log In</a>
+                <a href="register.html" class="btn btn-dark">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <header style="padding: 100px 0 60px; text-align: center;">
+        <div class="container">
+            <span class="badge badge-success" style="margin-bottom: 24px;">Comprehensive Coverage</span>
+            <h1 style="margin-bottom: 24px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                We handle the heavy lifting to get <span class="text-gradient">your money back.</span>
+            </h1>
+            <p style="font-size: 1.25rem; max-width: 600px; margin: 0 auto;">
+                Specialized refund recovery services for individuals and businesses. No win, no fee.
+            </p>
+        </div>
+    </header>
+
+    <section style="padding: 60px 0 100px;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px;">
+
+                <!-- Card 1 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-plane"></i>
+                    </div>
+                    <h2>Flight Compensation</h2>
+                    <p>Automated API claims for delays, cancellations, and overbookings under EU261/UK261.</p>
+                    <ul class="feature-list">
+                        <li>Delays over 3 hours</li>
+                        <li>Cancellations without 14 days notice</li>
+                        <li>Denied boarding coverage</li>
+                        <li>Missed connections</li>
+                    </ul>
+                    <a href="submit-claim.html?type=flight" class="btn btn-primary btn-lg">Check Flight Eligibility</a>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h2>Subscription Recovery</h2>
+                    <p>Identify and recover payments for unwanted or forgotten subscriptions and memberships.</p>
+                    <ul class="feature-list">
+                        <li>Streaming services (Netflix, etc.)</li>
+                        <li>Forgotten SaaS trials</li>
+                        <li>Gym memberships</li>
+                        <li>Duplicate charges</li>
+                    </ul>
+                    <a href="submit-claim.html?type=subscription" class="btn btn-primary btn-lg">Audit Subscriptions</a>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h2>Purchase Protection</h2>
+                    <p>Refunds for faulty goods, non-delivery, and price protection claims.</p>
+                    <ul class="feature-list">
+                        <li>Damaged or defective items</li>
+                        <li>Items never arrived</li>
+                        <li>Price drops after purchase</li>
+                        <li>Return policy disputes</li>
+                    </ul>
+                    <a href="submit-claim.html?type=purchase" class="btn btn-primary btn-lg">Start Purchase Claim</a>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h2>Bank Fees</h2>
+                    <p>Recover unfair overdraft fees, foreign transaction charges, and maintenance fees.</p>
+                    <ul class="feature-list">
+                        <li>Overdraft penalties</li>
+                        <li>ATM fees reimbursement</li>
+                        <li>Foreign transaction fees</li>
+                        <li>Monthly account charges</li>
+                    </ul>
+                    <a href="submit-claim.html?type=bank" class="btn btn-primary btn-lg">Analyze Bank Fees</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;">
+                <div>
+                    <h3 style="color: white; margin-bottom: 24px;">ReFundly</h3>
+                    <p>The leading automated refund recovery platform.</p>
+                </div>
+                <div>
+                    <h4>Platform</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="how-it-works.html">How it Works</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Company</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Legal</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                        <li><a href="privacy.html">Privacy</a></li>
+                        <li><a href="terms.html">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                style="border-top: 1px solid var(--color-slate-800); margin-top: 60px; padding-top: 32px; text-align: center; color: var(--color-slate-500);">
+                © 2026 ReFundly Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

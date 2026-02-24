@@ -1,0 +1,31 @@
+{
+  "name": "refundhelp-website",
+  "version": "1.0.0",
+  "description": "Professional refund claim service website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "reset:admin": "node scripts/reset-admin-password.js"
+  },
+  "keywords": [
+    "refund",
+    "claims",
+    "website",
+    "business"
+  ],
+  "author": "RefundHelp",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-pg-simple": "^9.0.0",
+    "dotenv": "^17.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
