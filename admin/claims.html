@@ -243,7 +243,7 @@
             const notes = document.getElementById('modalNotes').value;
 
             try {
-                const response = await fetch('/api/admin/claims/update', {
+                const response = await csrfFetch('/api/admin/claims/update', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ claimId: id, status, notes })
@@ -262,7 +262,7 @@
         });
 
         async function logout() {
-            await fetch('/api/logout', { method: 'POST' });
+            await csrfFetch('/api/logout', { method: 'POST' });
             window.location.href = 'login.html';
         }
     </script>

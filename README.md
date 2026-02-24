@@ -37,13 +37,15 @@ A complete, professional refund claim service website built with PHP, MySQL, HTM
 
 ## 🛠️ Technology Stack
 
+> Production default: run the Node.js server in `server.js`. PHP files are legacy references and are not the primary runtime path.
+
 **Option 1: Node.js (Recommended)**
 - **Backend**: Node.js + Express
 - **Database**: PostgreSQL (Supabase)
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Security**: bcrypt, sessions, file validation
 
-**Option 2: PHP**
+**Option 2: PHP (Legacy Reference)**
 - **Backend**: PHP 7.4+ with PDO (supports PostgreSQL/MySQL)
 - **Database**: PostgreSQL 12+ or MySQL 5.7+
 - **Security**: Password hashing, prepared statements, file validation
@@ -128,7 +130,7 @@ The schema includes:
 - Node.js 16+ and npm
 - PostgreSQL database (Supabase provided)
 
-**For PHP:**
+**For PHP (Legacy):**
 - PHP 7.4 or higher with PDO extension
 - PostgreSQL 12+ or MySQL 5.7+
 - Web server (Apache/Nginx)
@@ -169,11 +171,16 @@ For the Node.js app (including Supabase auth + email verification), set:
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 
+Security baseline:
+- Use a random `SESSION_SECRET` with at least 32 characters.
+- Rotate secrets immediately if they were shared in plaintext.
+
 ### Auth Notes
 
 - User sign-up and login are handled by Supabase Auth.
 - Email verification is required before login.
 - Verification redirect page: `verify-email.html`.
+- Forgot-password and reset-password flows are available via `forgot-password.html` and `reset-password.html`.
 - Supabase security hardening SQL: `supabase_rls_hardening.sql` (run in SQL Editor).
 
 **✅ Professional UI/UX:**
@@ -260,6 +267,7 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 ### For Users
 1. Register an account or login
+2. If needed, use "Forgot password" from login
 2. Submit a claim with required details and proof
 3. Track claim status in the dashboard
 4. Receive updates via email
@@ -277,7 +285,7 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 - Prepared statements for all database queries
 - File upload validation and type checking
 - Session management with secure cookies
-- CSRF protection on forms
+- CSRF protection on state-changing API routes
 - SQL injection prevention
 - XSS protection with input sanitization
 
@@ -314,6 +322,7 @@ This website is designed to be legally compliant. However, you should:
 - [ ] Backup and recovery procedures
 - [ ] Monitoring and logging
 - [ ] Load balancing setup
+- [ ] Run `REGRESSION_CHECKLIST.md` before release
 
 ## 🤝 Contributing
 

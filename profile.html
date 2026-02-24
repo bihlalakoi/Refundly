@@ -54,6 +54,9 @@
             <header style="margin-bottom: 32px;">
                 <h1 style="font-size: 1.75rem;">Account Settings</h1>
                 <p>Manage your profile, security, and preferences.</p>
+                <div style="margin-top: 12px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--color-slate-50); font-size: 0.85rem; color: var(--color-slate-600);">
+                    Name and phone are saved to your account. Other toggles on this page are local browser preferences until server support is enabled.
+                </div>
             </header>
 
             <!-- Profile Completion Widget -->
@@ -271,7 +274,7 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
                             <div class="form-group">
                                 <label class="form-label">New Password</label>
-                                <input type="password" id="newPassword" class="form-control" minlength="6"
+                                <input type="password" id="newPassword" class="form-control" minlength="8"
                                     oninput="checkPasswordStrength()">
                                 <div id="passwordStrength" style="margin-top: 8px; font-size: 0.8rem;"></div>
                             </div>
@@ -315,6 +318,7 @@
             <div id="notifications-tab" class="tab-content">
                 <div class="settings-card">
                     <h3 style="margin-bottom: 24px;">Email Notifications</h3>
+                    <p style="font-size: 0.85rem; color: var(--color-slate-500); margin-bottom: 16px;">Saved locally in this browser only.</p>
 
                     <div
                         style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
@@ -369,6 +373,7 @@
             <div id="privacy-tab" class="tab-content">
                 <div class="settings-card">
                     <h3 style="margin-bottom: 24px;">Privacy Preferences</h3>
+                    <p style="font-size: 0.85rem; color: var(--color-slate-500); margin-bottom: 16px;">Saved locally in this browser only.</p>
 
                     <div
                         style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
@@ -411,11 +416,10 @@
                 <div class="settings-card" style="border-color: #fee2e2; background: #fef2f2;">
                     <h3 style="color: var(--color-danger); margin-bottom: 16px;"><i
                             class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
-                    <p style="margin-bottom: 24px;">Once you delete your account, there is no going back. Please be
-                        certain.</p>
+                    <p style="margin-bottom: 24px;">This action clears local browser preferences only. It does not delete your server account.</p>
                     <button class="btn btn-outline" onclick="confirmDelete()"
                         style="border: 1px solid var(--color-danger); color: var(--color-danger); background: white;">
-                        Delete Account
+                        Clear Local Preferences
                     </button>
                 </div>
             </div>
@@ -607,7 +611,7 @@
             userData.language = document.getElementById('language').value;
 
             try {
-                const response = await fetch('/api/profile/update', {
+                const response = await csrfFetch('/api/profile/update', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -658,7 +662,7 @@
             }
 
             try {
-                const response = await fetch('/api/change-password', {
+                const response = await csrfFetch('/api/change-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -732,16 +736,16 @@
         }
 
         function confirmDelete() {
-            if (confirm('Are you absolutely sure? This action cannot be undone.')) {
+            if (confirm('Clear local browser preferences for this settings page?')) {
                 localStorage.removeItem(STORAGE_KEY);
-                Toast.warning('Account data cleared');
+                Toast.warning('Local preferences cleared');
                 setTimeout(() => window.location.href = 'index.html', 1500);
             }
         }
 
         async function logout() {
             try {
-                await fetch('/api/logout', { method: 'POST' });
+                await csrfFetch('/api/logout', { method: 'POST' });
             } catch (error) {
                 // Fall through to redirect even if API call fails.
             }

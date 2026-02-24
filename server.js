@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const crypto = require('crypto');
+const fs = require('fs');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
@@ -15,6 +16,16 @@ const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 const isVercel = Boolean(process.env.VERCEL);
 let authSchemaInitialized = false;
+const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
+const PASSWORD_MIN_LENGTH = 8;
+const UPLOAD_DIR = path.join(__dirname, 'uploads');
+const ALLOWED_UPLOAD_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'application/pdf'
+]);
+const ALLOWED_UPLOAD_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.pdf']);
 
 function getRequiredEnv(name) {
   const value = process.env[name];
@@ -22,6 +33,75 @@ function getRequiredEnv(name) {
     throw new Error(`Missing required environment variable: ${name}`);
   }
   return value;
+}
+
+function ensureStrongSessionSecret() {
+  const sessionSecret = getRequiredEnv('SESSION_SECRET');
+  const tooShort = sessionSecret.length < 32;
+  const weakPatterns = ['replace-with-long-random-secret', 'change-in-production', 'secret-key'];
+  const looksWeak = weakPatterns.some((pattern) => sessionSecret.toLowerCase().includes(pattern));
+
+  if (tooShort || looksWeak) {
+    if (!isProduction) {
+      console.warn(
+        'Warning: SESSION_SECRET looks weak. Use a random secret at least 32 characters long before production deployment.'
+      );
+      return;
+    }
+    throw new Error(
+      'SESSION_SECRET is too weak. Use a random secret at least 32 characters long in all environments.'
+    );
+  }
+}
+
+function generateCsrfToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function ensureCsrfToken(req) {
+  if (!req.session) {
+    return null;
+  }
+  if (!req.session.csrfToken) {
+    req.session.csrfToken = generateCsrfToken();
+  }
+  return req.session.csrfToken;
+}
+
+function requireCsrf(req, res, next) {
+  const expected = req.session?.csrfToken;
+  const provided = req.get('x-csrf-token');
+
+  if (!expected || !provided || provided !== expected) {
+    return res.status(403).json({
+      success: false,
+      message: 'Invalid security token. Refresh the page and try again.'
+    });
+  }
+
+  return next();
+}
+
+function normalizeText(value, maxLength = 5000) {
+  if (typeof value !== 'string') return '';
+  return value.trim().slice(0, maxLength);
+}
+
+function normalizeEmail(value) {
+  return normalizeText(value, 320).toLowerCase();
+}
+
+function parseAmount(value) {
+  const parsed = Number.parseFloat(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return Number(parsed.toFixed(2));
+}
+
+function validatePasswordStrength(password) {
+  if (typeof password !== 'string' || password.length < PASSWORD_MIN_LENGTH) {
+    return `Password must be at least ${PASSWORD_MIN_LENGTH} characters`;
+  }
+  return null;
 }
 
 function normalizeBcryptHash(hash = '') {
@@ -134,15 +214,20 @@ if (isProduction) {
   // Required so secure session cookies work behind Vercel/other proxies.
   app.set('trust proxy', 1);
 }
+app.use('/uploads', (req, res) => {
+  res.status(403).json({ success: false, message: 'Direct file access is disabled.' });
+});
 app.use(express.static(path.join(__dirname)));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Session configuration
+ensureStrongSessionSecret();
 app.use(session({
   store: new pgSession({
     pool: pool,
-    tableName: 'session'
+    tableName: 'session',
+    createTableIfMissing: true
   }),
   secret: getRequiredEnv('SESSION_SECRET'),
   resave: false,
@@ -156,16 +241,32 @@ app.use(session({
 }));
 
 // File upload configuration
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, UPLOAD_DIR);
   },
   filename: (req, file, cb) => {
     const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
     cb(null, uniqueName);
   }
 });
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: MAX_UPLOAD_SIZE_BYTES },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const isMimeAllowed = ALLOWED_UPLOAD_MIME_TYPES.has(file.mimetype);
+    const isExtAllowed = ALLOWED_UPLOAD_EXTENSIONS.has(ext);
+    if (!isMimeAllowed || !isExtAllowed) {
+      return cb(new Error('Only JPG, PNG, GIF, and PDF files are allowed.'));
+    }
+    return cb(null, true);
+  }
+});
 
 // Routes
 app.get('/', (req, res) => {
@@ -174,6 +275,14 @@ app.get('/', (req, res) => {
 
 app.get('/demo', (req, res) => {
   res.sendFile(path.join(__dirname, 'demo.html'));
+});
+
+app.get('/api/csrf-token', (req, res) => {
+  const token = ensureCsrfToken(req);
+  if (!token) {
+    return res.status(500).json({ success: false, message: 'Session is unavailable.' });
+  }
+  res.json({ success: true, csrfToken: token });
 });
 
 // User registration
@@ -187,15 +296,19 @@ app.post('/api/register', async (req, res) => {
     }
 
     await ensureAuthSchema();
-    const { name, email, password, phone } = req.body;
+    const name = normalizeText(req.body.name, 100);
+    const email = normalizeEmail(req.body.email);
+    const password = req.body.password;
+    const phone = normalizeText(req.body.phone, 30);
 
     // Validation
     if (!name || !email || !password) {
       return res.json({ success: false, message: 'All fields are required' });
     }
 
-    if (password.length < 6) {
-      return res.json({ success: false, message: 'Password must be at least 6 characters' });
+    const passwordError = validatePasswordStrength(password);
+    if (passwordError) {
+      return res.json({ success: false, message: passwordError });
     }
 
     const supabase = getSupabaseAuthClient();
@@ -253,7 +366,8 @@ app.post('/api/login', async (req, res) => {
     }
 
     await ensureAuthSchema();
-    const { email, password } = req.body;
+    const email = normalizeEmail(req.body.email);
+    const password = req.body.password;
 
     if (!email || !password) {
       return res.json({ success: false, message: 'Email and password are required' });
@@ -288,6 +402,7 @@ app.post('/api/login', async (req, res) => {
 
     req.session.userId = localUser.id;
     req.session.userName = localUser.name;
+    ensureCsrfToken(req);
 
     res.json({ success: true, message: 'Login successful!' });
 
@@ -306,7 +421,7 @@ app.post('/api/resend-verification', async (req, res) => {
       });
     }
 
-    const { email } = req.body;
+    const email = normalizeEmail(req.body.email);
     if (!email) {
       return res.json({ success: false, message: 'Email is required' });
     }
@@ -362,6 +477,7 @@ app.get('/api/verify-email', async (req, res) => {
 
     req.session.userId = localUser.id;
     req.session.userName = localUser.name;
+    ensureCsrfToken(req);
 
     res.json({ success: true, message: 'Email verified successfully.' });
   } catch (error) {
@@ -371,26 +487,25 @@ app.get('/api/verify-email', async (req, res) => {
 });
 
 // Submit claim
-app.post('/api/submit-claim', upload.single('proof'), async (req, res) => {
+app.post('/api/submit-claim', requireCsrf, upload.single('proof'), async (req, res) => {
   try {
     if (!req.session.userId) {
       return res.json({ success: false, message: 'Please login first' });
     }
 
-    const { claim_type, reference, amount, description } = req.body;
+    const claim_type = normalizeText(req.body.claim_type, 80);
+    const reference = normalizeText(req.body.reference, 120);
+    const description = normalizeText(req.body.description, 2000);
+    const amount = parseAmount(req.body.amount);
     const proofFile = req.file ? req.file.filename : null;
 
-    if (!claim_type || !amount) {
-      return res.json({ success: false, message: 'Claim type and amount are required' });
-    }
-
-    if (parseFloat(amount) <= 0) {
-      return res.json({ success: false, message: 'Amount must be greater than 0' });
+    if (!claim_type || !amount || !reference || !description) {
+      return res.json({ success: false, message: 'Claim type, reference, amount, and description are required' });
     }
 
     const result = await pool.query(
       'INSERT INTO claims (user_id, claim_type, reference_number, amount, proof_file, description, status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-      [req.session.userId, claim_type, reference, parseFloat(amount), proofFile, description, 'Submitted']
+      [req.session.userId, claim_type, reference, amount, proofFile, description, 'Submitted']
     );
 
     res.json({
@@ -401,6 +516,12 @@ app.post('/api/submit-claim', upload.single('proof'), async (req, res) => {
 
   } catch (error) {
     console.error('Claim submission error:', error);
+    if (error?.message?.includes('Only JPG')) {
+      return res.json({ success: false, message: error.message });
+    }
+    if (error?.code === 'LIMIT_FILE_SIZE') {
+      return res.json({ success: false, message: 'File size too large. Maximum size is 5MB.' });
+    }
     res.json({ success: false, message: 'Failed to submit claim. Please try again.' });
   }
 });
@@ -479,7 +600,8 @@ app.get('/api/claims/history', async (req, res) => {
 // Admin login
 app.post('/api/admin/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const username = normalizeText(req.body.username, 80);
+    const password = req.body.password;
 
     const admin = await pool.query('SELECT * FROM admin_users WHERE username = $1', [username]);
 
@@ -494,6 +616,7 @@ app.post('/api/admin/login', async (req, res) => {
 
     req.session.adminId = admin.rows[0].id;
     req.session.adminUsername = admin.rows[0].username;
+    ensureCsrfToken(req);
 
     res.json({ success: true, message: 'Admin login successful!' });
 
@@ -566,34 +689,63 @@ app.get('/api/admin/claims', async (req, res) => {
 });
 
 // Update claim status
-app.post('/api/admin/claims/update', async (req, res) => {
+app.post('/api/admin/claims/update', requireCsrf, async (req, res) => {
   try {
     if (!req.session.adminId) {
       return res.json({ success: false, message: 'Not authenticated' });
     }
 
-    const { claimId, status, notes } = req.body;
+    const claimId = Number.parseInt(req.body.claimId, 10);
+    const status = normalizeText(req.body.status, 20);
+    const notes = normalizeText(req.body.notes, 2000);
+    const allowedStatuses = new Set(['Submitted', 'In Review', 'Approved', 'Rejected', 'Refunded']);
+    if (!claimId || !allowedStatuses.has(status)) {
+      return res.json({ success: false, message: 'Invalid claim update request.' });
+    }
 
+    await pool.query('BEGIN');
+    const existing = await pool.query('SELECT status FROM claims WHERE id = $1 FOR UPDATE', [claimId]);
+    if (existing.rowCount === 0) {
+      await pool.query('ROLLBACK');
+      return res.json({ success: false, message: 'Claim not found.' });
+    }
+
+    const oldStatus = existing.rows[0].status;
     await pool.query(
       'UPDATE claims SET status = $1, admin_notes = $2 WHERE id = $3',
-      [status, notes, claimId]
+      [status, notes || null, claimId]
     );
-
-    // Track history (optional but good practice)
-    // await pool.query('INSERT INTO claim_history ...');
+    await pool.query(
+      'INSERT INTO claim_history (claim_id, old_status, new_status, changed_by, notes) VALUES ($1, $2, $3, $4, $5)',
+      [claimId, oldStatus, status, req.session.adminId, notes || null]
+    );
+    await pool.query('COMMIT');
 
     res.json({ success: true, message: 'Claim updated successfully' });
 
   } catch (error) {
+    try {
+      await pool.query('ROLLBACK');
+    } catch (rollbackError) {
+      console.error('Claim update rollback error:', rollbackError);
+    }
     console.error('Update claim error:', error);
     res.json({ success: false, message: 'Failed to update claim' });
   }
 });
 
 // Contact Form
-app.post('/api/contact', async (req, res) => {
+app.post('/api/contact', requireCsrf, async (req, res) => {
   try {
-    const { firstName, lastName, email, subject, message } = req.body;
+    const firstName = normalizeText(req.body.firstName, 80);
+    const lastName = normalizeText(req.body.lastName, 80);
+    const email = normalizeEmail(req.body.email);
+    const subject = normalizeText(req.body.subject, 150);
+    const message = normalizeText(req.body.message, 3000);
+
+    if (!firstName || !lastName || !email || !subject || !message) {
+      return res.json({ success: false, message: 'All fields are required.' });
+    }
 
     // In a real app, you would send an email here using SendGrid/SMTP
     // For now, we'll log it and return success
@@ -632,13 +784,17 @@ app.get('/api/profile', async (req, res) => {
 });
 
 // Update User Profile
-app.post('/api/profile/update', async (req, res) => {
+app.post('/api/profile/update', requireCsrf, async (req, res) => {
   try {
     if (!req.session.userId) {
       return res.status(401).json({ success: false, message: 'Not authenticated' });
     }
 
-    const { name, phone } = req.body;
+    const name = normalizeText(req.body.name, 100);
+    const phone = normalizeText(req.body.phone, 30);
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Name is required.' });
+    }
 
     await pool.query('UPDATE users SET name = $1, phone = $2 WHERE id = $3', [name, phone, req.session.userId]);
 
@@ -654,28 +810,49 @@ app.post('/api/profile/update', async (req, res) => {
 });
 
 // Change Password
-app.post('/api/change-password', async (req, res) => {
+app.post('/api/change-password', requireCsrf, async (req, res) => {
   try {
     if (!req.session.userId) {
       return res.status(401).json({ success: false, message: 'Not authenticated' });
     }
 
-    const { currentPassword, newPassword } = req.body;
+    const currentPassword = req.body.currentPassword;
+    const newPassword = req.body.newPassword;
+    const passwordError = validatePasswordStrength(newPassword);
+    if (passwordError) {
+      return res.json({ success: false, message: passwordError });
+    }
 
-    // Get current password hash
-    const userResult = await pool.query('SELECT password FROM users WHERE id = $1', [req.session.userId]);
+    const userResult = await pool.query('SELECT email FROM users WHERE id = $1', [req.session.userId]);
     const user = userResult.rows[0];
+    if (!user?.email) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
-    // Verify current password
-    const validPassword = await verifyPassword(currentPassword, user.password);
-    if (!validPassword) {
+    const supabase = getSupabaseAuthClient();
+    const signInResult = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword
+    });
+
+    if (signInResult.error || !signInResult.data.session) {
       return res.json({ success: false, message: 'Current password is incorrect' });
     }
 
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const scopedSupabaseClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: {
+        headers: {
+          Authorization: `Bearer ${signInResult.data.session.access_token}`
+        }
+      }
+    });
+    const updateResult = await scopedSupabaseClient.auth.updateUser({ password: newPassword });
+    if (updateResult.error) {
+      return res.json({ success: false, message: updateResult.error.message || 'Failed to update password' });
+    }
 
-    // Update DB
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, req.session.userId]);
 
     res.json({ success: true, message: 'Password changed successfully' });
@@ -686,14 +863,118 @@ app.post('/api/change-password', async (req, res) => {
   }
 });
 
+app.post('/api/forgot-password', async (req, res) => {
+  try {
+    if (!hasSupabaseAuthConfig) {
+      return res.status(500).json({
+        success: false,
+        message: 'Authentication service is not configured. Missing SUPABASE_URL or SUPABASE_ANON_KEY.'
+      });
+    }
+
+    const email = normalizeEmail(req.body.email);
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required.' });
+    }
+
+    const supabase = getSupabaseAuthClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${getAppBaseUrl(req)}/reset-password.html`
+    });
+
+    if (error) {
+      return res.json({ success: false, message: error.message || 'Unable to send reset email.' });
+    }
+
+    res.json({
+      success: true,
+      message: 'If an account exists with that email, a reset link has been sent.'
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.json({ success: false, message: 'Failed to start password reset.' });
+  }
+});
+
+app.post('/api/reset-password', async (req, res) => {
+  try {
+    if (!hasSupabaseAuthConfig) {
+      return res.status(500).json({
+        success: false,
+        message: 'Authentication service is not configured. Missing SUPABASE_URL or SUPABASE_ANON_KEY.'
+      });
+    }
+
+    const accessToken = normalizeText(req.body.accessToken, 5000);
+    const refreshToken = normalizeText(req.body.refreshToken, 5000);
+    const newPassword = req.body.newPassword;
+    const passwordError = validatePasswordStrength(newPassword);
+    if (!accessToken || !refreshToken || passwordError) {
+      return res.status(400).json({
+        success: false,
+        message: passwordError || 'Invalid or expired reset session. Please request a new reset link.'
+      });
+    }
+
+    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    const sessionResult = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    });
+    if (sessionResult.error || !sessionResult.data.session) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset link is invalid or has expired. Please request a new one.'
+      });
+    }
+
+    const updateResult = await supabase.auth.updateUser({ password: newPassword });
+    if (updateResult.error) {
+      return res.status(400).json({ success: false, message: updateResult.error.message || 'Failed to reset password.' });
+    }
+
+    const supabaseUser = updateResult.data.user || sessionResult.data.user;
+    if (supabaseUser) {
+      const localUser = await upsertLocalUserFromSupabase(supabaseUser);
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, localUser.id]);
+      req.session.userId = localUser.id;
+      req.session.userName = localUser.name;
+      ensureCsrfToken(req);
+    }
+
+    res.json({ success: true, message: 'Password reset successful.' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ success: false, message: 'Failed to reset password.' });
+  }
+});
+
 // Logout
-app.post('/api/logout', (req, res) => {
+app.post('/api/logout', requireCsrf, (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       return res.json({ success: false, message: 'Logout failed' });
     }
     res.json({ success: true, message: 'Logged out successfully' });
   });
+});
+
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ success: false, message: 'File size too large. Maximum size is 5MB.' });
+    }
+    return res.status(400).json({ success: false, message: 'Invalid file upload.' });
+  }
+
+  if (err?.message?.includes('Only JPG, PNG, GIF, and PDF files are allowed.')) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+
+  return next(err);
 });
 
 // Start server

@@ -337,7 +337,7 @@
 
         async function logout() {
             try {
-                await fetch('/api/logout', { method: 'POST' });
+                await csrfFetch('/api/logout', { method: 'POST' });
             } catch (error) {
                 // Fall through to redirect even if API call fails.
             }

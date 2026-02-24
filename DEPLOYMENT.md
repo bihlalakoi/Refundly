@@ -1,5 +1,44 @@
 # 🚀 RefundHelp Deployment Guide
 
+## Node.js First Deployment (Primary Path)
+
+This project should be deployed as a Node.js app using `server.js`.
+PHP instructions in this file are legacy references and should not be your default deployment path.
+
+### Required environment variables
+
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_SSL_REJECT_UNAUTHORIZED`
+- `SESSION_SECRET` (random, 32+ chars)
+- `APP_BASE_URL`
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+
+### Minimal production runbook
+
+1. Provision PostgreSQL and Supabase Auth.
+2. Apply schema: `database_schema_postgres.sql`.
+3. Apply RLS hardening: `supabase_rls_hardening.sql`.
+4. Set all env vars above in the host.
+5. Install and start:
+   - `npm install`
+   - `npm start`
+6. Validate critical flows:
+   - Register -> verify email -> login
+   - Forgot password -> reset password
+   - Submit claim with valid/invalid files
+   - Admin login -> claim status update
+
+### Incident checklist
+
+- Rotate `DB_PASSWORD` and `SESSION_SECRET` immediately if leaked.
+- Verify login + session creation after any secret rotation.
+- Confirm upload restrictions and claim update audit entries still work.
+
 Your website is ready to deploy! Here are multiple hosting options:
 
 ## 🌐 **Recommended: Vercel (Free & Easy)**

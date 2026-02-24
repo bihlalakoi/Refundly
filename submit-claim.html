@@ -262,7 +262,7 @@
             // Append files manually if needed or just use formData directly
 
             try {
-                const response = await fetch('/api/submit-claim', {
+                const response = await csrfFetch('/api/submit-claim', {
                     method: 'POST',
                     body: formData // Using FormData for file upload support
                 });
@@ -285,7 +285,7 @@
         });
 
         async function logout() {
-            await fetch('/api/logout', { method: 'POST' });
+            await csrfFetch('/api/logout', { method: 'POST' });
             window.location.href = '/';
         }
     </script>

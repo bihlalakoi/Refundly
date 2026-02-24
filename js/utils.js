@@ -224,6 +224,38 @@ function debounce(func, wait) {
     };
 }
 
+let csrfTokenCache = null;
+
+async function getCsrfToken(forceRefresh = false) {
+    if (!forceRefresh && csrfTokenCache) return csrfTokenCache;
+    const response = await fetch('/api/csrf-token', {
+        method: 'GET',
+        credentials: 'same-origin'
+    });
+    if (!response.ok) {
+        throw new Error('Unable to initialize request security token');
+    }
+    const payload = await response.json();
+    csrfTokenCache = payload.csrfToken;
+    return csrfTokenCache;
+}
+
+async function csrfFetch(url, options = {}) {
+    const method = (options.method || 'GET').toUpperCase();
+    if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+        return fetch(url, { ...options, credentials: 'same-origin' });
+    }
+
+    const token = await getCsrfToken();
+    const headers = new Headers(options.headers || {});
+    headers.set('x-csrf-token', token);
+    return fetch(url, {
+        ...options,
+        headers,
+        credentials: 'same-origin'
+    });
+}
+
 // Format currency
 function formatCurrency(amount, currency = 'GBP') {
     return new Intl.NumberFormat('en-GB', {
@@ -244,26 +276,41 @@ function formatDate(date, format = 'short') {
 
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { LoadingOverlay, Toast, FormValidator, smoothScroll, debounce, formatCurrency, formatDate };
+    module.exports = {
+        LoadingOverlay,
+        Toast,
+        FormValidator,
+        smoothScroll,
+        debounce,
+        formatCurrency,
+        formatDate,
+        getCsrfToken,
+        csrfFetch
+    };
 }
 
-// Replace old icon-based brand marks with the uploaded round logo.
+// Replace old icon+text brand marks with the provided full logo image.
 document.addEventListener('DOMContentLoaded', () => {
-    const legacyBrandIcons = document.querySelectorAll('i.fa-undo');
-    legacyBrandIcons.forEach((icon) => {
-        const wrapper = icon.parentElement;
-        if (!wrapper || wrapper.dataset.logoReplaced === 'true') return;
+    const candidateAnchors = Array.from(document.querySelectorAll('a')).filter((anchor) => {
+        const text = (anchor.textContent || '').toLowerCase();
+        const hasBrandText = text.includes('refundly') || text.includes('refundly');
+        const hasLegacyIcon = Boolean(anchor.querySelector('i.fa-undo, i.fa-shield-alt'));
+        return hasBrandText || hasLegacyIcon;
+    });
 
-        wrapper.dataset.logoReplaced = 'true';
-        wrapper.style.background = 'transparent';
-        wrapper.style.overflow = 'hidden';
-        wrapper.style.borderRadius = '50%';
-        wrapper.style.padding = '0';
-        wrapper.style.color = 'transparent';
+    candidateAnchors.forEach((anchor) => {
+        if (anchor.dataset.logoReplaced === 'true') return;
+        anchor.dataset.logoReplaced = 'true';
+        anchor.style.gap = '0';
+        anchor.style.fontSize = '0';
+        anchor.style.lineHeight = '0';
 
-        const width = wrapper.style.width || '32px';
-        const height = wrapper.style.height || '32px';
-
-        wrapper.innerHTML = `<img src="/assets/logo-round.jpg" alt="Refundly logo" style="width:${width};height:${height};border-radius:50%;object-fit:cover;display:block;">`;
+        anchor.innerHTML = `
+            <img
+                src="/assets/refundly-logo.jpg"
+                alt="Refundly"
+                style="height: 36px; width: auto; display: block;"
+            >
+        `;
     });
 });
