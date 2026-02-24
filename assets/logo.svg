@@ -1,0 +1,8 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer circle -->
+  <circle cx="20" cy="20" r="18" fill="#72B01D" stroke="#3F7D20" stroke-width="2"/>
+  <!-- Inner refund arrow -->
+  <path d="M12 18h10m-10 0l4-4m-4 4l4 4m6-4v6a2 2 0 01-2 2h-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Pound symbol -->
+  <text x="20" y="28" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">£</text>
+</svg>

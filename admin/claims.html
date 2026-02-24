@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims Management - ReFundly Admin</title>
+
+    <link rel="stylesheet" href="../css/admin-v2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/components.css">
+</head>
+
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <a href="dashboard.html" class="admin-brand">
+                <div
+                    style="width: 32px; height: 32px; background: var(--color-primary-500); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <span>Admin</span>
+            </a>
+
+            <nav class="admin-nav">
+                <div
+                    style="color: var(--color-slate-500); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; padding: 0 16px;">
+                    Overview</div>
+                <a href="dashboard.html" class="admin-nav-item">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="claims.html" class="admin-nav-item active">
+                    <i class="fas fa-clipboard-list"></i> Claims Management
+                </a>
+
+                <div
+                    style="color: var(--color-slate-500); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin: 24px 0 12px; padding: 0 16px;">
+                    System</div>
+                <a href="#" class="admin-nav-item">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </nav>
+
+            <div class="admin-user">
+                <div
+                    style="width: 36px; height: 36px; background: var(--color-slate-700); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; font-size: 0.9rem;">Administrator</div>
+                    <a href="#" onclick="logout()" style="color: var(--color-slate-400); font-size: 0.8rem;">Log Out</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header style="margin-bottom: 32px;">
+                <h1 style="font-size: 1.75rem;">Claims Management</h1>
+                <p style="color: var(--color-slate-500);">Review and process user refund requests.</p>
+            </header>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="search-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" class="form-control"
+                        placeholder="Search by ID, email, or reference...">
+                </div>
+                <select id="statusFilter" class="form-control" style="width: 200px;">
+                    <option value="">All Statuses</option>
+                    <option value="Submitted">Submitted</option>
+                    <option value="In Review">In Review</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Refunded">Refunded</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadClaims()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div class="admin-table-card">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Type / Reference</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="claimsTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 60px;">
+                                <i class="fas fa-spinner fa-spin"></i> Loading claims...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Update Status Modal -->
+    <div id="statusModal"
+        style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 500px;">
+            <h3 style="margin-bottom: 24px;">Update Claim Status</h3>
+            <form id="updateStatusForm">
+                <input type="hidden" id="modalClaimId">
+                <div class="form-group">
+                    <label class="form-label">New Status</label>
+                    <select id="modalStatus" class="form-control" required>
+                        <option value="Submitted">Submitted</option>
+                        <option value="In Review">In Review</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Refunded">Refunded</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes (Optional)</label>
+                    <textarea id="modalNotes" class="form-control" rows="3"
+                        placeholder="Add internal notes or reason for rejection..."></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadClaims);
+
+        // Search & Filter
+        document.getElementById('searchInput').addEventListener('input', debounce(filterClaims, 300));
+        document.getElementById('statusFilter').addEventListener('change', filterClaims);
+
+        let allClaims = [];
+
+        async function loadClaims() {
+            try {
+                const response = await fetch('/api/admin/claims');
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                const data = await response.json();
+                allClaims = data.claims || [];
+                renderClaims(allClaims);
+            } catch (error) {
+                console.error(error);
+                Toast.error('Failed to load claims');
+            }
+        }
+
+        function filterClaims() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+
+            const filtered = allClaims.filter(claim => {
+                const matchesSearch =
+                    claim.id.toString().includes(search) ||
+                    (claim.user_email && claim.user_email.toLowerCase().includes(search)) ||
+                    (claim.reference_number && claim.reference_number.toLowerCase().includes(search));
+
+                const matchesStatus = status ? claim.status === status : true;
+
+                return matchesSearch && matchesStatus;
+            });
+
+            renderClaims(filtered);
+        }
+
+        function renderClaims(claims) {
+            const tbody = document.getElementById('claimsTableBody');
+            if (claims.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No claims match your filters</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = claims.map(claim => `
+                <tr>
+                    <td><span style="font-family: monospace; background: var(--color-slate-100); padding: 2px 6px; border-radius: 4px;">#${claim.id}</span></td>
+                    <td>
+                        <div style="font-weight: 500;">${claim.user_name || 'Unknown'}</div>
+                        <div style="font-size: 0.8rem; color: var(--color-slate-500);">${claim.user_email || 'No email'}</div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 500;">${claim.claim_type}</div>
+                        <div style="font-size: 0.8rem; color: var(--color-slate-500);">${claim.reference_number || '-'}</div>
+                    </td>
+                    <td style="font-weight: 600;">${formatCurrency(claim.amount)}</td>
+                    <td>
+                        <span class="badge badge-${getStatusBadgeColor(claim.status)}">${claim.status}</span>
+                    </td>
+                    <td>${formatDate(claim.created_at)}</td>
+                    <td>
+                        <button onclick="openStatusModal('${claim.id}', '${claim.status}')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusBadgeColor(status) {
+            switch (status.toLowerCase()) {
+                case 'approved': return 'success';
+                case 'rejected': return 'danger';
+                case 'in review': return 'warning';
+                default: return 'secondary';
+            }
+        }
+
+        // Modal Logic
+        window.openStatusModal = (id, status) => {
+            document.getElementById('modalClaimId').value = id;
+            document.getElementById('modalStatus').value = status;
+            document.getElementById('statusModal').style.display = 'flex';
+        };
+
+        window.closeModal = () => {
+            document.getElementById('statusModal').style.display = 'none';
+        };
+
+        document.getElementById('updateStatusForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const id = document.getElementById('modalClaimId').value;
+            const status = document.getElementById('modalStatus').value;
+            const notes = document.getElementById('modalNotes').value;
+
+            try {
+                const response = await fetch('/api/admin/claims/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ claimId: id, status, notes })
+                });
+
+                if (response.ok) {
+                    Toast.success('Claim status updated');
+                    closeModal();
+                    loadClaims(); // Reload to show changes
+                } else {
+                    Toast.error('Failed to update status');
+                }
+            } catch (error) {
+                Toast.error('Network error');
+            }
+        });
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>
