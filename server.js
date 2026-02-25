@@ -18,7 +18,7 @@ const isVercel = Boolean(process.env.VERCEL);
 let authSchemaInitialized = false;
 const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
 const PASSWORD_MIN_LENGTH = 8;
-const UPLOAD_DIR = path.join(__dirname, 'uploads');
+const UPLOAD_DIR = isVercel ? path.join('/tmp', 'uploads') : path.join(__dirname, 'uploads');
 const ALLOWED_UPLOAD_MIME_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -241,8 +241,12 @@ app.use(session({
 }));
 
 // File upload configuration
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+} catch (error) {
+  console.error('Failed to initialize upload directory:', error.message);
 }
 
 const storage = multer.diskStorage({
