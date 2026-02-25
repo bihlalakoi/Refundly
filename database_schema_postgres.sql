@@ -1,4 +1,4 @@
--- RefundHelp Database Schema for PostgreSQL
+-- Refundly Pay Database Schema for PostgreSQL
 -- Legal refund company database for tracking user claims
 
 -- Create database (run this separately if needed)

@@ -1,5 +1,5 @@
 {
-  "name": "refundhelp-website",
+  "name": "refundly-pay-website",
   "version": "1.0.0",
   "description": "Professional refund claim service website",
   "main": "server.js",
@@ -14,7 +14,7 @@
     "website",
     "business"
   ],
-  "author": "RefundHelp",
+  "author": "Refundly Pay",
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",

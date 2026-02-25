@@ -1,4 +1,4 @@
-# 🚀 RefundHelp Deployment Guide
+# 🚀 Refundly Pay Deployment Guide
 
 ## Node.js First Deployment (Primary Path)
 
@@ -69,7 +69,7 @@ Your website is ready to deploy! Here are multiple hosting options:
 1. **Install Heroku CLI**: https://devcenter.heroku.com/articles/heroku-cli
 2. **Create App**:
    ```bash
-   heroku create your-refundhelp-app
+   heroku create your-refundly-pay-app
    ```
 
 3. **Add Buildpacks**:
@@ -260,4 +260,4 @@ git push heroku main
 3. Review browser console errors
 4. Check PHP error logs
 
-Your RefundHelp website is production-ready! 🚀
+Your Refundly Pay website is production-ready! 🚀

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - ReFundly</title>
+    <title>Dashboard - Refundly Pay</title>
 
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/components-v2.css">
@@ -43,7 +43,7 @@
                     style="width: 24px; height: 24px; background: var(--color-primary-600); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white;">
                     <i class="fas fa-undo" style="font-size: 12px;"></i>
                 </div>
-                <span>ReFundly</span>
+                <span>Refundly Pay</span>
             </a>
 
             <nav style="flex: 1;">
@@ -140,6 +140,16 @@
                         </div>
                     </div>
                     <div class="stat-value" id="successRate">--</div>
+                </div>
+            </div>
+
+            <div id="adminCreditCard" class="card" style="padding: 16px; margin-bottom: 16px; border: 1px solid #d1fae5; background: #f0fdf4; display: none;">
+                <div style="display: flex; justify-content: space-between; gap: 16px; align-items: center;">
+                    <div>
+                        <h3 style="margin: 0 0 4px 0; font-size: 0.95rem; color: #166534;">Admin Credited Amount</h3>
+                        <p id="adminCreditNote" style="margin: 0; font-size: 0.85rem; color: #15803d;"></p>
+                    </div>
+                    <div id="adminCreditAmount" style="font-size: 1.35rem; font-weight: 700; color: #166534;">£0.00</div>
                 </div>
             </div>
 
@@ -285,6 +295,16 @@
             document.getElementById('activeClaims').textContent = stats.active_claims;
             document.getElementById('pendingClaims').textContent = stats.pending_claims;
             document.getElementById('successRate').textContent = stats.success_rate + '%';
+            const adminCreditAmount = Number.parseFloat(stats.admin_credit_amount || 0);
+            const adminCreditNote = stats.admin_credit_note || 'Added by admin';
+            const adminCreditCard = document.getElementById('adminCreditCard');
+            if (adminCreditAmount > 0) {
+                adminCreditCard.style.display = 'block';
+                document.getElementById('adminCreditAmount').textContent = formatCurrency(adminCreditAmount);
+                document.getElementById('adminCreditNote').textContent = adminCreditNote;
+            } else {
+                adminCreditCard.style.display = 'none';
+            }
 
             if (user && user.name) {
                 document.getElementById('userName').textContent = user.name;

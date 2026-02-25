@@ -1,8 +1,8 @@
 <?php
-// RefundHelp Setup Script
+// Refundly Pay Setup Script
 // Run this once to initialize the database
 
-echo "RefundHelp Database Setup\n";
+echo "Refundly Pay Database Setup\n";
 echo "=========================\n\n";
 
 try {
@@ -91,7 +91,7 @@ try {
     echo "\nSetup check complete!\n";
 
     if ($tables_exist) {
-        echo "\n🎉 Your RefundHelp website should be ready to use!\n";
+        echo "\n🎉 Your Refundly Pay website should be ready to use!\n";
         echo "   - Public site: Open index.html in your browser\n";
         echo "   - Admin panel: Go to admin/login.html\n";
         echo "   - Admin login: username: admin, password: admin123\n";

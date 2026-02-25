@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_name'] = $name;
 
             $response['success'] = true;
-            $response['message'] = 'Account created successfully! Welcome to RefundHelp.';
+            $response['message'] = 'Account created successfully! Welcome to Refundly Pay.';
             $response['redirect'] = '../dashboard.php';
         } else {
             $response['message'] = 'Failed to create account. Please try again.';

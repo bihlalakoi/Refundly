@@ -1,5 +1,5 @@
 <?php
-// Database configuration for RefundHelp (PostgreSQL)
+// Database configuration for Refundly Pay (PostgreSQL)
 // Secure database connection with error handling
 
 $host = getenv('DB_HOST') ?: 'localhost';

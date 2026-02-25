@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - ReFundly</title>
+    <title>Admin Dashboard - Refundly Pay</title>
 
     <link rel="stylesheet" href="../css/admin-v2.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -123,6 +123,39 @@
                 </div>
             </div>
 
+            <!-- User Credit Manager -->
+            <div class="admin-table-card" style="margin-bottom: 32px;">
+                <div
+                    style="padding: 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0;">User Credit Manager</h3>
+                    <span style="font-size: 0.85rem; color: var(--color-slate-500);">Set amount shown on user dashboard</span>
+                </div>
+                <div style="padding: 20px 24px;">
+                    <form id="creditForm" style="display: grid; grid-template-columns: 2fr 1fr 2fr auto; gap: 12px; align-items: end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">User</label>
+                            <select id="creditUserSelect" class="form-control" required>
+                                <option value="">Select a user...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Amount (£)</label>
+                            <input type="number" step="0.01" min="0" id="creditAmount" class="form-control" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Note (optional)</label>
+                            <input type="text" id="creditNote" class="form-control" placeholder="e.g. goodwill payout">
+                        </div>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-save"></i> Save Credit
+                        </button>
+                    </form>
+                    <p style="margin-top: 10px; color: var(--color-slate-500); font-size: 0.82rem;">
+                        This amount is added to the user's "Total Recovered" on their dashboard.
+                    </p>
+                </div>
+            </div>
+
             <!-- Recent Activity -->
             <div class="admin-table-card">
                 <div
@@ -169,7 +202,7 @@
                 const statsData = await statsResponse.json();
 
                 if (statsData.stats) {
-                    updateStats(statsData.stats);
+                    updateStats(statsData.stats, statsData.credits);
                 }
 
                 // Fetch recent claims
@@ -180,15 +213,19 @@
                     updateRecentClaims(claimsData.claims.slice(0, 5));
                 }
 
+                await loadUsersForCredit();
+
             } catch (error) {
                 console.error('Dashboard load error:', error);
             }
         }
 
-        function updateStats(stats) {
+        function updateStats(stats, credits) {
             document.getElementById('totalClaims').textContent = stats.total_claims;
             document.getElementById('pendingClaims').textContent = stats.pending_claims;
-            document.getElementById('totalValue').textContent = formatCurrency(stats.total_value);
+            const claimsValue = Number.parseFloat(stats.total_value || 0);
+            const adminCredits = Number.parseFloat(credits?.total_admin_credits || 0);
+            document.getElementById('totalValue').textContent = formatCurrency(claimsValue + adminCredits);
 
             const total = parseInt(stats.total_claims);
             const refunded = parseInt(stats.refunded_claims);
@@ -222,6 +259,52 @@
                 </tr>
             `).join('');
         }
+
+        async function loadUsersForCredit() {
+            const response = await fetch('/api/admin/users');
+            if (!response.ok) return;
+            const data = await response.json();
+            const users = data.users || [];
+            const select = document.getElementById('creditUserSelect');
+            select.innerHTML = '<option value="">Select a user...</option>';
+            users.forEach((user) => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = `${user.name} (${user.email})`;
+                option.dataset.creditAmount = user.admin_credit_amount || 0;
+                option.dataset.creditNote = user.admin_credit_note || '';
+                select.appendChild(option);
+            });
+        }
+
+        document.getElementById('creditUserSelect').addEventListener('change', function () {
+            const selected = this.options[this.selectedIndex];
+            document.getElementById('creditAmount').value = Number.parseFloat(selected?.dataset.creditAmount || 0).toFixed(2);
+            document.getElementById('creditNote').value = selected?.dataset.creditNote || '';
+        });
+
+        document.getElementById('creditForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const userId = document.getElementById('creditUserSelect').value;
+            const amount = document.getElementById('creditAmount').value;
+            const note = document.getElementById('creditNote').value;
+            if (!userId) {
+                Toast.error('Please select a user.');
+                return;
+            }
+            const response = await csrfFetch('/api/admin/users/credit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, amount, note })
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                Toast.success('User credit updated successfully.');
+                await loadDashboard();
+            } else {
+                Toast.error(result.message || 'Failed to update user credit.');
+            }
+        });
 
         function getStatusBadgeColor(status) {
             switch (status.toLowerCase()) {

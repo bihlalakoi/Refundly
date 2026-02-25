@@ -2,7 +2,7 @@
 // Test Supabase Database Connection
 require_once 'php/db.php';
 
-echo "<h1>RefundHelp - Database Connection Test</h1>";
+echo "<h1>Refundly Pay - Database Connection Test</h1>";
 echo "<style>body{font-family:Arial,sans-serif;margin:40px;} .success{color:green;} .error{color:red;} .info{color:blue;}</style>";
 
 try {

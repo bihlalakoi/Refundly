@@ -1,4 +1,4 @@
-# RefundHelp - Professional Refund Claim Website
+# Refundly Pay - Professional Refund Claim Website
 
 A complete, professional refund claim service website built with PHP, MySQL, HTML, CSS, and JavaScript. This is a legitimate refund service platform where users can submit claims for flight refunds, subscription cancellations, purchase returns, and bank fee recoveries.
 

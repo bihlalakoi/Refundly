@@ -63,14 +63,14 @@ foreach ($claims as $claim) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - RefundHelp</title>
+    <title>Dashboard - Refundly Pay</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header class="main-header">
         <div class="container">
             <div class="logo">
-                <h1>RefundHelp</h1>
+                <h1>Refundly Pay</h1>
             </div>
             <nav class="main-nav">
                 <ul>
@@ -198,7 +198,7 @@ foreach ($claims as $claim) {
     <footer class="main-footer">
         <div class="container">
             <div class="footer-bottom">
-                <p>&copy; 2026 RefundHelp. All rights reserved.</p>
+                <p>&copy; 2026 Refundly Pay. All rights reserved.</p>
             </div>
         </div>
     </footer>

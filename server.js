@@ -10,6 +10,7 @@ const { Pool } = require('pg');
 const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,9 @@ const ALLOWED_UPLOAD_MIME_TYPES = new Set([
   'application/pdf'
 ]);
 const ALLOWED_UPLOAD_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.pdf']);
+const NOTIFICATION_EMAIL_TO = process.env.NOTIFICATION_EMAIL_TO || 'refundlypay@gmail.com';
+const NOTIFICATION_EMAIL_FROM = process.env.NOTIFICATION_EMAIL_FROM || 'refundlypay@gmail.com';
+const BRAND_NAME = 'Refundly Pay';
 
 function getRequiredEnv(name) {
   const value = process.env[name];
@@ -104,6 +108,44 @@ function validatePasswordStrength(password) {
   return null;
 }
 
+let mailTransporter = null;
+
+function getMailer() {
+  if (mailTransporter) return mailTransporter;
+
+  const host = process.env.SMTP_HOST;
+  const port = Number.parseInt(process.env.SMTP_PORT || '587', 10);
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) return null;
+
+  mailTransporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass }
+  });
+  return mailTransporter;
+}
+
+async function sendNotificationEmail(subject, html, text) {
+  const transporter = getMailer();
+  if (!transporter) {
+    console.warn('Email notification skipped: SMTP is not configured.');
+    return { sent: false, reason: 'smtp_not_configured' };
+  }
+
+  await transporter.sendMail({
+    from: `"${BRAND_NAME}" <${NOTIFICATION_EMAIL_FROM}>`,
+    to: NOTIFICATION_EMAIL_TO,
+    subject,
+    text,
+    html
+  });
+  return { sent: true };
+}
+
 function normalizeBcryptHash(hash = '') {
   // Node bcrypt doesn't support $2y$ prefix directly, convert to $2b$.
   return hash.startsWith('$2y$') ? `$2b$${hash.slice(4)}` : hash;
@@ -137,6 +179,16 @@ async function ensureAuthSchema() {
   await pool.query(`
     ALTER TABLE users
     ADD COLUMN IF NOT EXISTS supabase_user_id UUID
+  `);
+
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS admin_credit_amount DECIMAL(10,2) NOT NULL DEFAULT 0
+  `);
+
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS admin_credit_note TEXT
   `);
 
   authSchemaInitialized = true;
@@ -353,6 +405,20 @@ app.post('/api/register', async (req, res) => {
         : 'Account created successfully!'
     });
 
+    sendNotificationEmail(
+      `${BRAND_NAME}: New user registration`,
+      `
+      <h2>New user registration</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone || '-'}</p>
+      <p><strong>Verification required:</strong> ${requiresVerification ? 'Yes' : 'No'}</p>
+      `,
+      `New user registration: ${name} (${email})`
+    ).catch((mailError) => {
+      console.error('Registration notification email error:', mailError.message);
+    });
+
   } catch (error) {
     console.error('Registration error:', error);
     res.json({ success: false, message: 'Registration failed. Please try again.' });
@@ -512,6 +578,25 @@ app.post('/api/submit-claim', requireCsrf, upload.single('proof'), async (req, r
       [req.session.userId, claim_type, reference, amount, proofFile, description, 'Submitted']
     );
 
+    const userResult = await pool.query('SELECT name, email FROM users WHERE id = $1', [req.session.userId]);
+    const user = userResult.rows[0];
+    sendNotificationEmail(
+      `${BRAND_NAME}: New claim submitted #${result.rows[0].id}`,
+      `
+      <h2>New claim submitted</h2>
+      <p><strong>Claim ID:</strong> #${result.rows[0].id}</p>
+      <p><strong>User:</strong> ${user?.name || 'Unknown'} (${user?.email || 'Unknown'})</p>
+      <p><strong>Type:</strong> ${claim_type}</p>
+      <p><strong>Reference:</strong> ${reference}</p>
+      <p><strong>Amount:</strong> £${amount.toFixed(2)}</p>
+      <p><strong>Description:</strong> ${description}</p>
+      <p><strong>Proof uploaded:</strong> ${proofFile ? 'Yes' : 'No'}</p>
+      `,
+      `New claim #${result.rows[0].id} from ${user?.email || 'unknown'} for £${amount.toFixed(2)}`
+    ).catch((mailError) => {
+      console.error('Claim notification email error:', mailError.message);
+    });
+
     res.json({
       success: true,
       message: `Claim submitted successfully! Claim ID: #${result.rows[0].id}`,
@@ -537,20 +622,27 @@ app.get('/api/dashboard', async (req, res) => {
       return res.status(401).json({ error: 'Not authenticated' });
     }
 
+    await ensureAuthSchema();
     const claims = await pool.query(
       'SELECT id, claim_type, reference_number, amount, status, created_at FROM claims WHERE user_id = $1 ORDER BY created_at DESC',
       [req.session.userId]
     );
+    const userResult = await pool.query(
+      'SELECT name, admin_credit_amount, admin_credit_note FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+    const userRow = userResult.rows[0] || {};
+    const adminCreditAmount = Number.parseFloat(userRow.admin_credit_amount || 0);
 
     const stats = claims.rows.reduce((acc, claim) => {
       const amount = parseFloat(claim.amount || 0);
-      acc.total_value += amount;
       acc.active_claims += 1;
       if (claim.status === 'Submitted' || claim.status === 'In Review') {
         acc.pending_claims += 1;
       }
       if (claim.status === 'Approved' || claim.status === 'Refunded') {
         acc.success_count += 1;
+        acc.total_value += amount;
       }
       return acc;
     }, {
@@ -559,18 +651,21 @@ app.get('/api/dashboard', async (req, res) => {
       pending_claims: 0,
       success_count: 0
     });
+    stats.total_value += adminCreditAmount;
 
     const success_rate = stats.active_claims > 0
       ? Math.round((stats.success_count / stats.active_claims) * 100)
       : 0;
 
     res.json({
-      user: { name: req.session.userName || 'User' },
+      user: { name: userRow.name || req.session.userName || 'User' },
       stats: {
         total_value: Number(stats.total_value.toFixed(2)),
         active_claims: stats.active_claims,
         pending_claims: stats.pending_claims,
-        success_rate
+        success_rate,
+        admin_credit_amount: Number(adminCreditAmount.toFixed(2)),
+        admin_credit_note: userRow.admin_credit_note || null
       },
       claims: claims.rows
     });
@@ -637,6 +732,7 @@ app.get('/api/admin/dashboard', async (req, res) => {
       return res.status(401).json({ error: 'Not authenticated' });
     }
 
+    await ensureAuthSchema();
     const stats = await pool.query(`
       SELECT
         COUNT(*) as total_claims,
@@ -649,10 +745,12 @@ app.get('/api/admin/dashboard', async (req, res) => {
     `);
 
     const users = await pool.query('SELECT COUNT(*) as total_users FROM users');
+    const credits = await pool.query('SELECT COALESCE(SUM(admin_credit_amount), 0) AS total_admin_credits FROM users');
 
     res.json({
       stats: stats.rows[0],
-      users: users.rows[0]
+      users: users.rows[0],
+      credits: credits.rows[0]
     });
 
   } catch (error) {
@@ -689,6 +787,71 @@ app.get('/api/admin/claims', async (req, res) => {
   } catch (error) {
     console.error('Admin claims error:', error);
     res.status(500).json({ error: 'Failed to load claims' });
+  }
+});
+
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    if (!req.session.adminId) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    await ensureAuthSchema();
+    const users = await pool.query(
+      `SELECT id, name, email, phone, admin_credit_amount, admin_credit_note, created_at
+       FROM users
+       ORDER BY created_at DESC
+       LIMIT 200`
+    );
+    res.json({ users: users.rows });
+  } catch (error) {
+    console.error('Admin users list error:', error);
+    res.status(500).json({ error: 'Failed to load users' });
+  }
+});
+
+app.post('/api/admin/users/credit', requireCsrf, async (req, res) => {
+  try {
+    if (!req.session.adminId) {
+      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
+    await ensureAuthSchema();
+    const userId = Number.parseInt(req.body.userId, 10);
+    const amount = Number.parseFloat(req.body.amount);
+    const note = normalizeText(req.body.note, 400);
+
+    if (!userId || !Number.isFinite(amount) || amount < 0) {
+      return res.status(400).json({ success: false, message: 'Invalid credit request.' });
+    }
+
+    const update = await pool.query(
+      'UPDATE users SET admin_credit_amount = $1, admin_credit_note = $2 WHERE id = $3 RETURNING id, name, email, admin_credit_amount',
+      [Number(amount.toFixed(2)), note || null, userId]
+    );
+
+    if (update.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const updatedUser = update.rows[0];
+    sendNotificationEmail(
+      `${BRAND_NAME}: Admin credit updated`,
+      `
+      <h2>Admin credit updated</h2>
+      <p><strong>User:</strong> ${updatedUser.name} (${updatedUser.email})</p>
+      <p><strong>Credit amount:</strong> £${Number(updatedUser.admin_credit_amount).toFixed(2)}</p>
+      <p><strong>Note:</strong> ${note || '-'}</p>
+      `,
+      `Admin credit updated for ${updatedUser.email}: £${Number(updatedUser.admin_credit_amount).toFixed(2)}`
+    ).catch((mailError) => {
+      console.error('Admin credit notification email error:', mailError.message);
+    });
+
+    res.json({ success: true, message: 'User credit updated successfully.', user: updatedUser });
+  } catch (error) {
+    console.error('Admin user credit update error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update user credit.' });
   }
 });
 
@@ -751,12 +914,19 @@ app.post('/api/contact', requireCsrf, async (req, res) => {
       return res.json({ success: false, message: 'All fields are required.' });
     }
 
-    // In a real app, you would send an email here using SendGrid/SMTP
-    // For now, we'll log it and return success
-    console.log('Contact Form Submission:', { firstName, lastName, email, subject, message });
-
-    // Optional: Store in DB if you want to keep records
-    // await pool.query('INSERT INTO messages ...');
+    sendNotificationEmail(
+      `${BRAND_NAME}: New contact message`,
+      `
+      <h2>New contact form message</h2>
+      <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Subject:</strong> ${subject}</p>
+      <p><strong>Message:</strong><br>${message.replace(/\n/g, '<br>')}</p>
+      `,
+      `Contact message from ${firstName} ${lastName} (${email}) - ${subject}: ${message}`
+    ).catch((mailError) => {
+      console.error('Contact notification email error:', mailError.message);
+    });
 
     res.json({ success: true, message: 'Message sent successfully!' });
 
@@ -984,7 +1154,7 @@ app.use((err, req, res, next) => {
 // Start server
 if (!isVercel) {
   app.listen(PORT, () => {
-    console.log(`🚀 RefundHelp server running on http://localhost:${PORT}`);
+    console.log(`🚀 ${BRAND_NAME} server running on http://localhost:${PORT}`);
     console.log(`📊 Database: Supabase PostgreSQL`);
     console.log(`🎨 Demo: http://localhost:${PORT}/demo.html`);
     console.log(`🏠 Home: http://localhost:${PORT}/`);

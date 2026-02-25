@@ -1,4 +1,4 @@
--- RefundHelp Database Schema
+-- Refundly Pay Database Schema
 -- Legal refund company database for tracking user claims
 
 CREATE DATABASE IF NOT EXISTS refund_company;

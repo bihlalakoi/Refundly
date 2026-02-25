@@ -1,4 +1,4 @@
-// Main JavaScript for ReFundly
+// Main JavaScript for Refundly Pay
 // Handles common functionality across the site
 
 document.addEventListener('DOMContentLoaded', function() {

@@ -307,8 +307,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         anchor.innerHTML = `
             <img
-                src="/assets/refundly-logo.jpg"
-                alt="Refundly"
+                src="/assets/refundly-pay-logo.jpg"
+                alt="Refundly Pay"
                 style="height: 36px; width: auto; display: block;"
             >
         `;
