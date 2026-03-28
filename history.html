@@ -14,6 +14,22 @@
 </head>
 
 <body>
+    <!-- Mobile Header -->
+    <div class="mobile-app-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn btn-icon" id="sidebarToggle" style="background: var(--color-slate-100);">
+                <i class="fas fa-bars"></i>
+            </button>
+            <span style="font-weight: 700;">History</span>
+        </div>
+        <div
+            style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+            <i class="fas fa-undo" style="font-size: 14px;"></i>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <div class="dashboard-layout">
         <aside class="sidebar">
             <a href="index.html"
@@ -44,7 +60,7 @@
                 </a>
             </nav>
 
-            <a href="#" onclick="logout()" class="nav-item" style="color: var(--color-danger);">
+            <a href="#" class="nav-item" onclick="handleLogout()" style="color: var(--color-danger);">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Log Out</span>
             </a>
@@ -71,7 +87,8 @@
 
                 <!-- Filters -->
                 <div
-                    style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; background: white; padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                    style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; background: white; padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);"
+                    class="stack-mobile">
                     <div class="form-group" style="margin-bottom: 0;">
                         <input type="text" id="searchInput" class="form-control"
                             placeholder="🔍 Search by ID, type, or description..."
@@ -111,7 +128,8 @@
             </header>
 
             <div class="card" style="padding: 0;">
-                <table class="activity-table">
+                <div id="tableContainer" class="table-container">
+                    <table class="activity-table">
                     <thead>
                         <tr>
                             <th>Claim ID</th>
@@ -335,14 +353,6 @@
             }
         }
 
-        async function logout() {
-            try {
-                await csrfFetch('/api/logout', { method: 'POST' });
-            } catch (error) {
-                // Fall through to redirect even if API call fails.
-            }
-            window.location.href = 'index.html';
-        }
     </script>
 </body>
 

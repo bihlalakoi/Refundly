@@ -22,26 +22,41 @@
                     style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
                     <i class="fas fa-undo"></i>
                 </div>
-                Refundly Pay
+                <span class="hide-mobile">Refundly Pay</span>
             </a>
 
-            <div style="display: flex; gap: 8px;" class="desktop-nav">
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <a href="register.html" class="btn btn-dark hide-mobile">Get Started</a>
+                <a href="register.html" class="btn btn-dark show-mobile" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Start</a>
+                
+                <!-- Mobile Menu Toggle -->
+                <div class="mobile-menu-toggle show-mobile" id="mobile-toggle" style="margin-left: 8px;">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;" class="desktop-nav hide-mobile">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="services.html" class="nav-link">Services</a>
                 <a href="how-it-works.html" class="nav-link">Process</a>
                 <a href="about.html" class="nav-link">About</a>
             </div>
+        </div>
 
-            <div style="display: flex; gap: 16px; align-items: center;">
-                <a href="login.html" style="font-weight: 600; color: var(--color-slate-600);">Log In</a>
-                <a href="register.html" class="btn btn-dark">Get Started</a>
-            </div>
+        <!-- Mobile Navigation -->
+        <div class="nav-links" id="mobile-nav">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="services.html" class="nav-link">Services</a>
+            <a href="how-it-works.html" class="nav-link">Process</a>
+            <a href="about.html" class="nav-link">About</a>
+            <a href="login.html" class="nav-link">Log In</a>
+            <a href="register.html" class="nav-link">Register</a>
         </div>
     </nav>
 
-    <div class="container" style="padding: 80px 0;">
+    <div class="container" style="padding: 120px 0 80px;">
         <div
-            style="max-width: 800px; margin: 0 auto; background: white; padding: 60px; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+            style="max-width: 800px; margin: 0 auto; background: white; padding: 60px; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);" class="card">
             <h1 style="margin-bottom: 16px;">Privacy Policy</h1>
             <p
                 style="color: var(--color-slate-500); margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color);">
@@ -75,6 +90,7 @@
             </div>
         </div>
     </footer>
+    <script src="js/main.js"></script>
 </body>
 
 </html>

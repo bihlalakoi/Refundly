@@ -14,6 +14,22 @@
 </head>
 
 <body>
+    <!-- Mobile Header -->
+    <div class="mobile-app-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn btn-icon" id="sidebarToggle" style="background: var(--color-slate-100);">
+                <i class="fas fa-bars"></i>
+            </button>
+            <span style="font-weight: 700;">Settings</span>
+        </div>
+        <div
+            style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+            <i class="fas fa-undo" style="font-size: 14px;"></i>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <div class="dashboard-layout">
         <aside class="sidebar">
             <a href="index.html"
@@ -44,7 +60,7 @@
                 </a>
             </nav>
 
-            <a href="#" onclick="logout()" class="nav-item" style="color: var(--color-danger);">
+            <a href="#" onclick="handleLogout()" class="nav-item" style="color: var(--color-danger);">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Log Out</span>
             </a>
@@ -93,7 +109,7 @@
             </div>
 
             <!-- Account Stats -->
-            <div class="stats-grid">
+            <div class="stats-grid stack-mobile">
                 <div class="stat-card">
                     <div
                         style="color: var(--color-slate-500); font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">
@@ -160,7 +176,7 @@
                     </div>
 
                     <form id="profileForm" onsubmit="saveProfile(event)">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;" class="stack-mobile">
                             <div class="form-group">
                                 <label class="form-label">Full Name</label>
                                 <input type="text" id="name" class="form-control" required>
@@ -182,7 +198,7 @@
                             <input type="text" id="address" class="form-control" placeholder="123 Main Street">
                         </div>
                         <div
-                            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
+                            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;" class="stack-mobile">
                             <div class="form-group">
                                 <label class="form-label">City</label>
                                 <input type="text" id="city" class="form-control">
@@ -271,7 +287,7 @@
                             <label class="form-label">Current Password</label>
                             <input type="password" id="currentPassword" class="form-control">
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;" class="stack-mobile">
                             <div class="form-group">
                                 <label class="form-label">New Password</label>
                                 <input type="password" id="newPassword" class="form-control" minlength="8"
@@ -743,14 +759,6 @@
             }
         }
 
-        async function logout() {
-            try {
-                await csrfFetch('/api/logout', { method: 'POST' });
-            } catch (error) {
-                // Fall through to redirect even if API call fails.
-            }
-            window.location.href = 'index.html';
-        }
     </script>
 </body>
 

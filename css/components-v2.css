@@ -171,6 +171,77 @@
     background: var(--color-primary-50);
 }
 
+/* --- Desktop Nav Visibility --- */
+@media (max-width: 768px) {
+    .desktop-nav {
+        display: none !important;
+    }
+
+    .navbar .container {
+        position: relative;
+    }
+
+    /* Mobile Menu Toggle (Hamburger) */
+    .mobile-menu-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--color-slate-100);
+        color: var(--color-slate-900);
+        cursor: pointer;
+        font-size: 1.25rem;
+    }
+
+    .nav-links {
+        display: none !important; /* Fully hide by default on mobile */
+        position: absolute;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem 0;
+        gap: 0;
+        border-bottom: 2px solid var(--color-primary-500);
+        box-shadow: var(--shadow-xl);
+        z-index: 1000;
+    }
+
+    .nav-links.active {
+        display: flex !important;
+    }
+
+    .nav-links .nav-link {
+        width: 100%;
+        padding: 1.25rem 2rem;
+        border-radius: 0;
+        border-bottom: 1px solid var(--color-slate-100);
+        text-align: left;
+        background: transparent !important;
+    }
+    
+    .nav-links .nav-link:last-child {
+        border-bottom: none;
+    }
+}
+
+/* Hide mobile nav on desktop */
+@media (min-width: 769px) {
+    .nav-links {
+        display: none !important;
+    }
+}
+
+
+@media (min-width: 769px) {
+    .mobile-menu-toggle {
+        display: none !important;
+    }
+}
+
 /* Footer styling for new theme */
 .modern-footer {
     background-color: var(--color-slate-900);
@@ -191,3 +262,25 @@
 .modern-footer a:hover {
     color: white;
 }
+
+@media (max-width: 768px) {
+    .modern-footer {
+        padding: 3rem 0 1.5rem;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2.5rem !important;
+        text-align: center;
+    }
+
+    .footer-grid > div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-grid ul {
+        align-items: center;
+    }
+}

@@ -158,27 +158,35 @@
                     style="width: 32px; height: 32px; background: var(--color-primary-600); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
                     <i class="fas fa-undo"></i>
                 </div>
-                Refundly Pay
+                <span class="hide-mobile">Refundly Pay</span>
             </a>
 
-            <div style="display: flex; gap: 8px;" class="desktop-nav">
-                <a href="index.html" class="nav-link active">Home</a>
-                <a href="services.html" class="nav-link">Services</a>
-                <a href="how-it-works.html" class="nav-link">Process</a>
-                <a href="about.html" class="nav-link">About</a>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <a href="register.html" class="btn btn-dark hide-mobile">Get Started</a>
+                <a href="register.html" class="btn btn-dark show-mobile" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Start</a>
+                
+                <!-- Mobile Menu Toggle -->
+                <div class="mobile-menu-toggle show-mobile" id="mobile-toggle" style="margin-left: 8px;">
+                    <i class="fas fa-bars"></i>
+                </div>
             </div>
+        </div>
 
-            <div style="display: flex; gap: 16px; align-items: center;">
-                <a href="login.html" style="font-weight: 600; color: var(--color-slate-600);">Log In</a>
-                <a href="register.html" class="btn btn-dark">Get Started</a>
-            </div>
+        <!-- Mobile Navigation -->
+        <div class="nav-links" id="mobile-nav">
+            <a href="index.html" class="nav-link active">Home</a>
+            <a href="services.html" class="nav-link">Services</a>
+            <a href="how-it-works.html" class="nav-link">Process</a>
+            <a href="about.html" class="nav-link">About</a>
+            <a href="login.html" class="nav-link">Log In</a>
+            <a href="register.html" class="nav-link">Register</a>
         </div>
     </nav>
 
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
-            <div class="hero-grid">
+            <div class="hero-grid stack-mobile">
                 <!-- Left Content -->
                 <div class="hero-text">
                     <div class="hero-badge-pill">
@@ -190,7 +198,7 @@
                         The automated refund platform that handles flights, subscriptions, and purchases. No win, no
                         fee.
                     </p>
-                    <div style="display: flex; gap: 16px;">
+                    <div style="display: flex; gap: 16px;" class="flex-column-mobile">
                         <a href="register.html" class="btn btn-primary btn-lg">
                             Start Your Claim <i class="fas fa-arrow-right"></i>
                         </a>
@@ -291,7 +299,7 @@
             <p
                 style="margin-bottom: 24px; font-weight: 600; color: var(--color-slate-400); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">
                 Supported Merchants & Services</p>
-            <div class="partners-logos">
+            <div class="partners-logos flex-column-mobile" style="gap: 30px;">
                 <h3 style="margin: 0; color: var(--color-slate-400);">AIRLINES</h3>
                 <h3 style="margin: 0; color: var(--color-slate-400);">BANKS</h3>
                 <h3 style="margin: 0; color: var(--color-slate-400);">SaaS</h3>
@@ -309,7 +317,7 @@
                 <p>We handle the complex legal and administrative work so you can focus on what matters.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;" class="stack-mobile">
                 <div class="card card-hover">
                     <div class="feature-card-icon">
                         <i class="fas fa-bolt"></i>
@@ -338,14 +346,14 @@
     <!-- Stats Section -->
     <section style="background: var(--color-slate-900); padding: 100px 0; color: white;">
         <div class="container">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;" class="stack-mobile text-center-mobile">
                 <div>
                     <h2 style="color: white; margin-bottom: 24px;">Numbers that speak for themselves</h2>
                     <p style="color: var(--color-slate-400); margin-bottom: 32px;">We've established a reputation for
                         success across the industry.</p>
                     <a href="about.html" class="btn btn-primary">Read our story</a>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;" class="stack-mobile">
                     <div>
                         <div style="font-size: 3.5rem; font-weight: 800; color: var(--color-primary-400);">98%</div>
                         <div style="color: var(--color-slate-400);">Success Rate</div>
@@ -370,7 +378,7 @@
     <!-- Footer -->
     <footer class="modern-footer">
         <div class="container">
-            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;" class="footer-grid">
                 <div>
                     <h3 style="color: white; margin-bottom: 24px;">Refundly Pay</h3>
                     <p>The leading automated refund recovery platform.</p>

@@ -106,15 +106,15 @@ h6 {
 }
 
 h1 {
-    font-size: 3.5rem;
+    font-size: clamp(2.25rem, 8vw, 3.5rem);
 }
 
 h2 {
-    font-size: 2.5rem;
+    font-size: clamp(1.75rem, 6vw, 2.5rem);
 }
 
 h3 {
-    font-size: 1.75rem;
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
 }
 
 p {
@@ -177,3 +177,37 @@ img {
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.5);
 }
+
+/* --- Responsive Utilities --- */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .show-mobile {
+        display: block !important;
+    }
+
+    .flex-column-mobile {
+        flex-direction: column !important;
+    }
+
+    .stack-mobile {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    .text-center-mobile {
+        text-align: center !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .show-mobile {
+        display: none !important;
+    }
+}
